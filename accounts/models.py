@@ -31,7 +31,7 @@ class CustomUserManager(BaseUserManager):
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
-    profile_iamge = models.ImageField(upload_to=user_profile_upload_path, null=True, blank=True)
+    profile_image = models.ImageField(upload_to=user_profile_upload_path, null=True, blank=True)
     phone = models.CharField(max_length=10, blank=True)
     address = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -45,6 +45,6 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
 
         # Ensure the profile image is saved to the correct path
-        if self.profile_iamge and not self.profile_iamge.name.startswith(f"user_media/{self.id}/profile/"):
-            self.profile_iamge.name = user_profile_upload_path(self, self.profile_iamge.name)
+        if self.profile_image and not self.profile_image.name.startswith(f"user_media/{self.id}/profile/"):
+            self.profile_image.name = user_profile_upload_path(self, self.profile_image.name)
             super().save(*args, **kwargs)

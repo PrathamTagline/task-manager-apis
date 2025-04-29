@@ -3,63 +3,98 @@ from rest_framework import serializers
 from accounts.models import User
 from projects.models import Project, ProjectMembership
 
+
 class UserSerializer(serializers.ModelSerializer):
+    profile_image = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'email']
+        fields = ['id', 'email', 'first_name', 'last_name', 'profile_image']
+
+    def get_profile_image(self, obj):
+        if obj.profile_image and hasattr(obj.profile_image, 'url'):
+            return obj.profile_image.url
+        return None
+
 
 class ProjectMembershipSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), source='user', write_only=True
+    )
 
     class Meta:
         model = ProjectMembership
-        fields = ['id', 'user', 'role', 'joined_at']
+        fields = ['id', 'user', 'user_id', 'role', 'joined_at']
         read_only_fields = ['id', 'joined_at']
 
+
 class ProjectSerializer(serializers.ModelSerializer):
-    memberships = ProjectMembershipSerializer(many=True, required=False)  # memberships can be optional
+    memberships = ProjectMembershipSerializer(many=True, required=False)
     owner = UserSerializer(read_only=True)
-    created_by = UserSerializer(read_only=True)  # Added created_by
-    created_at = serializers.DateTimeField(read_only=True)  # Added created_at
+    created_by = UserSerializer(read_only=True)
+    created_at = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = Project
-        fields = ['id', 'name', 'description', 'key', 'image','type', 'owner', 'memberships', 'created_by', 'created_at']
-        read_only_fields = ['id', 'key', 'owner', 'memberships', 'created_by', 'created_at']
+        fields = [
+            'id', 'name', 'description', 'key', 'image', 'type',
+            'owner', 'memberships', 'created_by', 'created_at'
+        ]
+        read_only_fields = [
+            'id', 'key', 'owner', 'memberships', 'created_by', 'created_at'
+        ]
 
     def create(self, validated_data):
-        user = self.context['request'].user  # Get the user who is creating the project
-        memberships_data = self.initial_data.get('memberships', [])
-        
-        # Create the project
-        project = Project.objects.create(owner=user, **validated_data)
+        request = self.context.get('request')
+        user = request.user if request else None
 
-        # If memberships data is provided, create ProjectMemberships for the project
-        # Add creator as 'Admin' if they are not part of the memberships
-        if not any(m['user'] == user.id for m in memberships_data):
-            memberships_data.append({'user': user.id, 'role': 'Admin'})
-        
-        # Create memberships for the project
-        for membership_data in memberships_data:
-            ProjectMembership.objects.create(project=project, **membership_data)
+        memberships_data = self.initial_data.get('memberships', [])
+
+        # Remove memberships from validated_data if somehow present
+        validated_data.pop('memberships', None)
+
+        project = Project.objects.create(
+            owner=user,
+            created_by=user,
+            **validated_data
+        )
+
+        # Always add the creator as Admin if not manually added
+        creator_included = any(
+            int(m.get('user_id')) == user.id for m in memberships_data
+        )
+        if not creator_included:
+            memberships_data.append({'user_id': user.id, 'role': 'Admin'})
+
+        # Create memberships
+        for membership in memberships_data:
+            ProjectMembership.objects.create(
+                project=project,
+                user_id=membership['user_id'],
+                role=membership['role']
+            )
 
         return project
 
     def update(self, instance, validated_data):
-        instance.name = validated_data.get('name', instance.name)
-        instance.description = validated_data.get('description', instance.description)
+        memberships_data = self.initial_data.get('memberships', [])
+
+        validated_data.pop('memberships', None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
         instance.save()
-        
-        # Handle the case where memberships might be updated (e.g., adding/removing members)
-        memberships_data = validated_data.get('memberships', None)
-        if memberships_data is not None:
-            # Update memberships
-            for membership_data in memberships_data:
-                user = membership_data['user']
-                role = membership_data['role']
-                # Assuming we have a way to update the existing memberships
+
+        if memberships_data:
+            # Optionally clear old memberships if you want
+            # ProjectMembership.objects.filter(project=instance).delete()
+
+            for membership in memberships_data:
                 ProjectMembership.objects.update_or_create(
-                    project=instance, user=user, defaults={'role': role}
+                    project=instance,
+                    user_id=membership['user_id'],
+                    defaults={'role': membership['role']}
                 )
-        
+
         return instance

@@ -1,27 +1,27 @@
-# # Python bytecode files
-# *.pyc
-# *.pyo
-# __pycache__/
+# Python bytecode files
+*.pyc
+*.pyo
+__pycache__/
 
-# Virtual environment
-# env/
-# venv/
+Virtual environment
+env/
+venv/
 
-# # Django specific
-# *.log
-# *.pot
-# *.py[cod]
-# *.sqlite3
-# db.sqlite3
+# Django specific
+*.log
+*.pot
+*.py[cod]
+*.sqlite3
+db.sqlite3
 
-# # IDE specific
-# .vscode/
-# .idea/
+# IDE specific
+.vscode/
+.idea/
 
-# # OS generated files
-# .DS_Store
-# Thumbs.db
+# OS generated files
+.DS_Store
+Thumbs.db
 
-# # Environment variables
-# .env
-# *.env
+# Environment variables
+.env
+*.env

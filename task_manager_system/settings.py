@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'accounts',  # Your custom user app
     'projects',  # Your projects app
+    'tasks', # Your tasks app
 ]
 
 # REST Framework settings
