@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}SignUp{% endblock title %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/signup_page.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home_page.css' %}">
+{% endblock styles %}
+
+{% block content %}
+{% include "core/includes/home_page_components/home_page_navigation_bar_section.html" %}
+    <div class="signup-container">
+        {% include "accounts/includes/signup_page_components/signup_page_header.html" %}
+        {% include "accounts/includes/signup_page_components/signup_page_form.html" %}
+    </div>
+    
+    <script type="module" src="{% static 'js/signup_logic.js' %}"></script>
+{% endblock content%}

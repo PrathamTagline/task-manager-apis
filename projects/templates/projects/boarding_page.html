@@ -1,0 +1,744 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KAN Board</title>
+    <link rel="stylesheet" href="{% static 'css/boarding.css' %}" />
+  </head>
+  <body>
+    <!-- project boarding page nvbar -->
+    {% include "projects/includes/project_boarding_page_contents/projects_boarding_page_navbar.html"%}
+
+    <!-- project boarding page header -->
+    {% include "projects/includes/project_boarding_page_contents/projects_boarding_page_header.html"%}
+
+    <!-- Rest of the existing content remains the same until task-detail-modal -->
+    <!-- project boarding page Toolbar -->
+    {% include "projects/includes/project_boarding_page_contents/project_boarding_page_toolbar.html"%}
+
+    <!-- project boarding page content for tasks show -->
+    {% include "projects/includes/project_boarding_page_contents/project_boarding_page_content.html"%}
+
+    <!-- Create Issue Modal -->
+    {% include "projects/includes/project_boarding_page_contents/project_boarding_page_Create_issue_modal.html"%}
+
+    <!-- User Profile Modal -->
+    {% include "projects/includes/project_boarding_page_contents/project_boarding_page_memberviews.html"%}
+
+    <!-- Add People Modal -->
+    {% include "projects/includes/project_boarding_page_contents/project_boarding_page_add_people_modal.html"%}
+
+    <!-- Task Detail Modal -->
+    {% include "projects/includes/project_boarding_page_contents/project_boarding_page_task_detail_modal.html"%}
+
+    <!-- Task Detail Modal (Modified to include delete button) -->
+    {% include "projects/includes/project_boarding_page_contents/project_boarding_page_task_modift_and_delete.html"%}
+
+    <!-- Modified Add People Modal with role selection -->
+    {% include "projects/includes/project_boarding_page_contents/project_boarding_page_modify_add_people.html"%}
+
+    <!-- Delete Project Confirmation Modal -->
+    {% include "projects/includes/project_boarding_page_contents/project_boarding_page_delete_project_confirmation_modal.html"%}
+
+    <!-- Delete Task Confirmation Modal -->
+    {% include "projects/includes/project_boarding_page_contents/project_boarding_page_delete_task_confirmations_modal.html"%}
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Global variables - defined only once
+        let apis_data = [];
+        let draggedItem = null;
+        let currentTaskToDelete = null;
+      
+        async function fetchData() {
+          try {
+            const path = window.location.pathname;
+            const projectKey = path.split("/")[2]; // Extract the project key from the URL
+            console.log("Project Key:", projectKey);
+            document.title = projectKey;
+      
+            const response = await fetch(`/tasks/api/tasks/?project=${projectKey}`, {
+              method: "GET",
+              headers: {
+                Authorization: "Bearer " + localStorage.getItem("access_token"),
+                "Content-Type": "application/json",
+              },
+            });
+      
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+      
+            const data = await response.json();
+            apis_data = data; // Store the fetched data in the global array
+      
+            // Safely access the project name from the first item
+            document.getElementById("project-name-in-nav").textContent = 
+              apis_data[0]?.project?.name || "Project";
+      
+            // Populate the board now that we have the data
+            populateKanbanBoard();
+      
+            // For debugging
+            console.log("API Data stored globally:", apis_data);
+      
+            // Return the data
+            return apis_data;
+          } catch (error) {
+            console.error("Error fetching data:", error);
+            alert("Failed to fetch project data. Please try again.");
+          }
+        }
+      
+        // Populate the kanban board with tasks from the API
+        function populateKanbanBoard() {
+          // Clear existing tasks first (except the "add issue" buttons)
+          clearExistingTasks();
+      
+          // Reset counters
+          document.getElementById("todo-count").textContent = "0";
+          document.getElementById("progress-count").textContent = "0";
+          document.getElementById("done-count").textContent = "0";
+      
+          // Count tasks for each status
+          let todoCount = 0;
+          let progressCount = 0;
+          let doneCount = 0;
+      
+          // Create task cards from the API data
+          apis_data.forEach((task) => {
+            const taskCard = createTaskCard(task);
+      
+            // Add to appropriate column
+            let targetColumnId;
+            if (task.status === "todo") {
+              targetColumnId = "todo-tasks";
+              todoCount++;
+            } else if (task.status === "progress" || task.status === "in_progress") {
+              targetColumnId = "progress-tasks";
+              progressCount++;
+            } else if (task.status === "done") {
+              targetColumnId = "done-tasks";
+              doneCount++;
+            } else {
+              // Default to todo for unknown status
+              targetColumnId = "todo-tasks";
+              todoCount++;
+            }
+      
+            const targetColumn = document.getElementById(targetColumnId);
+            const addIssueBtn = targetColumn.querySelector(".add-issue");
+            targetColumn.insertBefore(taskCard, addIssueBtn);
+      
+            // Setup events for the new task card
+            setupTaskCardEventListeners(taskCard);
+            setupDragAndDropForTask(taskCard);
+          });
+      
+          // Update the counts
+          document.getElementById("todo-count").textContent = todoCount.toString();
+          document.getElementById("progress-count").textContent = progressCount.toString();
+          document.getElementById("done-count").textContent = doneCount.toString();
+        }
+      
+        // Clear existing tasks from all columns
+        function clearExistingTasks() {
+          const columns = ["todo-tasks", "progress-tasks", "done-tasks"];
+          columns.forEach((columnId) => {
+            const column = document.getElementById(columnId);
+            const tasks = column.querySelectorAll(".task-card");
+            tasks.forEach((task) => task.remove());
+          });
+        }
+      
+        // Create a task card element from a task object
+        function createTaskCard(task) {
+          const newTask = document.createElement("div");
+          newTask.className = "task-card";
+          newTask.setAttribute(
+            "data-task-id",
+            task.id || `KAN-${task.key || Math.floor(Math.random() * 1000)}`
+          );
+          newTask.setAttribute("draggable", "true");
+      
+          // Get assignee info (using first letter of name if available)
+          const assigneeInitials = task.assignee
+            ? task.assignee.name
+              ? task.assignee.name.charAt(0).toUpperCase()
+              : "U"
+            : "U";
+          const assigneeClass =
+            task.assignee && task.assignee.color ? task.assignee.color : "";
+      
+          newTask.innerHTML = `
+            <div class="task-title">${task.title || "Untitled Task"}</div>
+            <div class="task-meta">
+              <div class="task-id">
+                <span class="task-checkbox"></span>
+                ${task.id || `KAN-${task.key || Math.floor(Math.random() * 1000)}`}
+              </div>
+              <div class="task-assignee">
+                <div class="avatar ${assigneeClass}" style="width: 24px; height: 24px; font-size: 12px;">${assigneeInitials}</div>
+              </div>
+            </div>
+          `;
+      
+          return newTask;
+        }
+      
+        // ====================================
+        // Modal handling functions
+        // ====================================
+        function closeAllModals() {
+          document.querySelectorAll(".modal-overlay").forEach((modal) => {
+            modal.style.display = "none";
+          });
+        }
+      
+        function openModal(modalId) {
+          document.getElementById(modalId).style.display = "flex";
+        }
+      
+        // Add event listeners to all modal close buttons
+        document.querySelectorAll(".modal-close").forEach((button) => {
+          button.addEventListener("click", closeAllModals);
+        });
+      
+        // ====================================
+        // User Profile Modal
+        // ====================================
+        document
+          .getElementById("view-all-members-link")
+          .addEventListener("click", () => {
+            document.getElementById("profile-avatar").textContent = "PP";
+            document.getElementById("profile-avatar").style.backgroundColor = "#0052cc";
+            document.getElementById("profile-avatar").style.color = "white";
+            document.getElementById("profile-name").textContent = "Paul Smith";
+            document.getElementById("profile-email").textContent = "paul.smith@example.com";
+            openModal("user-profile-modal");
+          });
+      
+        // ====================================
+        // Add People Modal
+        // ====================================
+        document
+          .getElementById("add-people-btn")
+          .addEventListener("click", () => {
+            openModal("add-people-modal");
+          });
+      
+        // Handle person selection in add people modal
+        document.querySelectorAll(".person-checkbox").forEach((checkbox) => {
+          checkbox.addEventListener("change", () => {
+            const personItem = checkbox.closest(".person-item");
+            personItem.style.backgroundColor = checkbox.checked
+              ? "#E6EFFC"
+              : "";
+          });
+        });
+      
+        document
+          .getElementById("cancel-add-people")
+          .addEventListener("click", () => {
+            closeAllModals();
+          });
+      
+        document
+          .getElementById("confirm-add-people")
+          .addEventListener("click", () => {
+            const selectedPeople = [];
+      
+            document
+              .querySelectorAll(".person-checkbox:checked")
+              .forEach((checkbox) => {
+                const personItem = checkbox.closest(".person-item");
+                const name = personItem.querySelector(".person-name").textContent;
+                const role = personItem.querySelector(".role-dropdown").value;
+      
+                selectedPeople.push({ name, role });
+              });
+      
+            if (selectedPeople.length > 0) {
+              alert(`Added ${selectedPeople.length} people to the project!`);
+      
+              // Reset checkboxes
+              document
+                .querySelectorAll(".person-checkbox")
+                .forEach((checkbox) => {
+                  checkbox.checked = false;
+                  checkbox.closest(".person-item").style.backgroundColor = "";
+                });
+            } else {
+              alert("Please select at least one person to add.");
+            }
+      
+            closeAllModals();
+          });
+      
+        // ====================================
+        // Create Issue Modal
+        // ====================================
+        function setupCreateIssueModal(buttonId, status) {
+          document.getElementById(buttonId).addEventListener("click", () => {
+            const modal = document.getElementById("create-issue-modal");
+            document.getElementById("issue-status").value = status;
+            openModal("create-issue-modal");
+          });
+        }
+      
+        setupCreateIssueModal("add-todo-task", "todo");
+        setupCreateIssueModal("add-progress-task", "progress");
+        setupCreateIssueModal("add-done-task", "done");
+      
+        document
+          .getElementById("cancel-create-issue")
+          .addEventListener("click", () => {
+            closeAllModals();
+          });
+      
+        document
+          .getElementById("confirm-create-issue")
+          .addEventListener("click", createNewIssue);
+      
+        async function createNewIssue() {
+          const title = document.getElementById("issue-title").value;
+          const description = document.getElementById("issue-description").value;
+          const status = document.getElementById("issue-status").value;
+          const assignee = document.getElementById("issue-assignee").value;
+      
+          if (title.trim() === "") {
+            alert("Please enter a title for the issue");
+            return;
+          }
+      
+          // Get the next task ID
+          const allTasks = document.querySelectorAll(".task-card");
+          const nextId = allTasks.length + 1;
+          const taskId = `KAN-${nextId}`;
+      
+          // Create a new task object
+          const newTaskData = {
+            title: title,
+            description: description,
+            priority: "HIGH", // Adjust priority if required by the API
+            due_date: null, // Add due_date if required
+          };
+      
+          try {
+            // Typically here you'd send the new task to the API
+            const response = await postNewTask(newTaskData);
+      
+            // Add it to our global data array
+            apis_data.push(newTaskData);
+            console.log("Task added to global array:", apis_data);
+      
+            // Create the new task card
+            const newTask = createTaskCard(newTaskData);
+      
+            // Add the task to the appropriate column and update count
+            let targetColumnId, countId;
+            if (status === "todo") {
+              targetColumnId = "todo-tasks";
+              countId = "todo-count";
+            } else if (status === "progress") {
+              targetColumnId = "progress-tasks";
+              countId = "progress-count";
+            } else {
+              targetColumnId = "done-tasks";
+              countId = "done-count";
+            }
+      
+            const targetColumn = document.getElementById(targetColumnId);
+            const countElement = document.getElementById(countId);
+            countElement.textContent = (
+              parseInt(countElement.textContent) + 1
+            ).toString();
+      
+            // Insert the new task before the "add issue" button
+            const addIssueBtn = targetColumn.querySelector(".add-issue");
+            targetColumn.insertBefore(newTask, addIssueBtn);
+      
+            // Add click event to the new task
+            setupTaskCardEventListeners(newTask);
+      
+            // Setup drag and drop for the new task
+            setupDragAndDropForTask(newTask);
+      
+            // Clear the form and hide the modal
+            document.getElementById("issue-title").value = "";
+            document.getElementById("issue-description").value = "";
+            closeAllModals();
+          } catch (error) {
+            console.error("Error creating new issue:", error);
+            alert("Failed to create new issue. Please try again.");
+          }
+        }
+      
+        // ====================================
+        // Task Detail Modal
+        // ====================================
+        function setupTaskCardEventListeners(taskCard) {
+          taskCard.addEventListener("click", () => {
+            const taskId = taskCard.getAttribute("data-task-id");
+            const taskTitle = taskCard.querySelector(".task-title").textContent;
+      
+            // Find the task data from the global API data
+            const taskData = apis_data.find(
+              (task) => task.id === taskId || `KAN-${task.key}` === taskId
+            );
+      
+            const modal = document.getElementById("task-detail-modal");
+            modal.querySelector(".task-detail-id").textContent = taskId;
+            modal.querySelector("#detail-title").textContent = taskTitle;
+      
+            // If we found task data, use it to populate the modal
+            if (taskData) {
+              modal.querySelector("#detail-description").textContent =
+                taskData.description || "";
+              // You can populate other fields like assignee, priority, etc.
+            }
+      
+            // Set the correct status in the dropdown
+            let status = "todo";
+            if (taskCard.closest("#progress-tasks")) {
+              status = "progress";
+            } else if (taskCard.closest("#done-tasks")) {
+              status = "done";
+            }
+            modal.querySelector(".status-dropdown").value = status;
+      
+            openModal("task-detail-modal");
+          });
+        }
+      
+        // Initialize event listeners for existing task cards
+        document.querySelectorAll(".task-card").forEach((taskCard) => {
+          setupTaskCardEventListeners(taskCard);
+        });
+      
+        // ====================================
+        // Delete Project Functionality
+        // ====================================
+        document
+          .getElementById("delete-project-btn")
+          .addEventListener("click", () => {
+            openModal("delete-project-modal");
+          });
+      
+        document
+          .getElementById("cancel-delete-project")
+          .addEventListener("click", () => {
+            closeAllModals();
+          });
+      
+        document
+          .getElementById("confirm-delete-project")
+          .addEventListener("click", () => {
+            // Here you would typically send a request to delete the project from the database
+            alert("Project deleted successfully!");
+            closeAllModals();
+            // In a real application, you might redirect to a projects list page
+          });
+      
+        // ====================================
+        // Delete Task Functionality
+        // ====================================
+        document
+          .getElementById("delete-task-btn")
+          .addEventListener("click", () => {
+            const taskDetailModal = document.getElementById("task-detail-modal");
+            const taskId = taskDetailModal.querySelector(".task-detail-id").textContent;
+            currentTaskToDelete = taskId;
+      
+            closeAllModals();
+            openModal("delete-task-modal");
+          });
+      
+        document
+          .getElementById("cancel-delete-task")
+          .addEventListener("click", () => {
+            closeAllModals();
+          });
+      
+        document
+          .getElementById("confirm-delete-task")
+          .addEventListener("click", async () => {
+            if (currentTaskToDelete) {
+              try {
+                // Find the task element to remove
+                const taskToRemove = document.querySelector(
+                  `[data-task-id="${currentTaskToDelete}"]`
+                );
+      
+                if (taskToRemove) {
+                  // Update the count in the column
+                  let columnCountId;
+                  const parentColumn = taskToRemove.closest(".tasks-container");
+      
+                  if (parentColumn.id === "todo-tasks") {
+                    columnCountId = "todo-count";
+                  } else if (parentColumn.id === "progress-tasks") {
+                    columnCountId = "progress-count";
+                  } else {
+                    columnCountId = "done-count";
+                  }
+      
+                  const countEl = document.getElementById(columnCountId);
+                  countEl.textContent = Math.max(
+                    0,
+                    parseInt(countEl.textContent) - 1
+                  ).toString();
+      
+                  // Remove the task from the DOM
+                  taskToRemove.remove();
+      
+                  // In a real application, you would send a DELETE request to the API
+                  // await deleteTask(currentTaskToDelete);
+      
+                  // Remove the task from our global data array
+                  apis_data = apis_data.filter(
+                    (task) =>
+                      task.id !== currentTaskToDelete &&
+                      `KAN-${task.key}` !== currentTaskToDelete
+                  );
+                  
+                  console.log("Task removed from global array:", apis_data);
+                }
+      
+                currentTaskToDelete = null;
+                closeAllModals();
+              } catch (error) {
+                console.error("Error deleting task:", error);
+                alert("Failed to delete task. Please try again.");
+              }
+            }
+          });
+      
+        // ====================================
+        // Drag and Drop Functionality
+        // ====================================
+        const columns = document.querySelectorAll(".tasks-container");
+      
+        function setupDragAndDropForTask(taskCard) {
+          taskCard.setAttribute("draggable", "true");
+      
+          taskCard.addEventListener("dragstart", function (e) {
+            draggedItem = this;
+            setTimeout(() => {
+              this.style.opacity = "0.5";
+            }, 0);
+          });
+      
+          taskCard.addEventListener("dragend", function () {
+            this.style.opacity = "1";
+            draggedItem = null;
+          });
+        }
+      
+        // Initialize drag-and-drop for existing task cards
+        document.querySelectorAll(".task-card").forEach((taskCard) => {
+          setupDragAndDropForTask(taskCard);
+        });
+      
+        // Set up columns as drop targets
+        columns.forEach((column) => {
+          column.addEventListener("dragover", function (e) {
+            e.preventDefault();
+            this.style.backgroundColor = "rgba(0, 0, 0, 0.05)";
+          });
+      
+          column.addEventListener("dragleave", function () {
+            this.style.backgroundColor = "";
+          });
+      
+          column.addEventListener("drop", async function (e) {
+            e.preventDefault();
+            this.style.backgroundColor = "";
+      
+            if (draggedItem) {
+              // Update task counts
+              const fromColumn = draggedItem.parentElement;
+              const toColumn = this;
+      
+              if (fromColumn !== toColumn) {
+                // Decrease count in the source column
+                updateColumnCount(fromColumn.id, -1);
+      
+                // Increase count in the target column
+                updateColumnCount(toColumn.id, 1);
+      
+                // Get the new status based on the target column
+                const newStatus = getColumnStatus(toColumn.id);
+      
+                // Get the task ID
+                const taskId = draggedItem.getAttribute("data-task-id");
+      
+                // Find the task in our global data array
+                const taskIndex = apis_data.findIndex(
+                  (task) => task.id === taskId || `KAN-${task.key}` === taskId
+                );
+      
+                if (taskIndex !== -1) {
+                  // Update the status in our global data
+                  apis_data[taskIndex].status = newStatus;
+                  console.log("Task status updated in global array:", apis_data[taskIndex]);
+      
+                  // In a real application, you would update the task on the server
+                  // await updateTaskStatus(taskId, newStatus);
+                }
+              }
+      
+              // Insert the dragged item before the "add issue" button
+              const addIssueBtn = this.querySelector(".add-issue");
+              this.insertBefore(draggedItem, addIssueBtn);
+            }
+          });
+        });
+      
+        function getColumnStatus(columnId) {
+          if (columnId === "todo-tasks") return "todo";
+          if (columnId === "progress-tasks") return "progress";
+          if (columnId === "done-tasks") return "done";
+          return "unknown";
+        }
+      
+        function updateColumnCount(columnId, change) {
+          let countId;
+          if (columnId === "todo-tasks") {
+            countId = "todo-count";
+          } else if (columnId === "progress-tasks") {
+            countId = "progress-count";
+          } else if (columnId === "done-tasks") {
+            countId = "done-count";
+          } else {
+            return; // Unknown column
+          }
+      
+          const countEl = document.getElementById(countId);
+          const newCount = Math.max(0, parseInt(countEl.textContent) + change);
+          countEl.textContent = newCount.toString();
+        }
+      
+        // ====================================
+        // Status change handling in task detail
+        // ====================================
+        document
+          .querySelector(".status-dropdown")
+          .addEventListener("change", async function () {
+            const taskId = document.querySelector(".task-detail-id").textContent;
+            const newStatus = this.value;
+            const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
+      
+            if (taskCard) {
+              // Get current column
+              const currentColumn = taskCard.parentElement;
+      
+              // Get target column based on new status
+              let targetColumnId;
+              if (newStatus === "todo") {
+                targetColumnId = "todo-tasks";
+              } else if (newStatus === "progress") {
+                targetColumnId = "progress-tasks";
+              } else {
+                targetColumnId = "done-tasks";
+              }
+      
+              const targetColumn = document.getElementById(targetColumnId);
+      
+              // Only move if columns are different
+              if (currentColumn.id !== targetColumn.id) {
+                // Update counts
+                updateColumnCount(currentColumn.id, -1);
+                updateColumnCount(targetColumn.id, 1);
+      
+                // Move the task card
+                const addIssueBtn = targetColumn.querySelector(".add-issue");
+                targetColumn.insertBefore(taskCard, addIssueBtn);
+      
+                // Find the task in our global data array
+                const taskIndex = apis_data.findIndex(
+                  (task) => task.id === taskId || `KAN-${task.key}` === taskId
+                );
+      
+                if (taskIndex !== -1) {
+                  // Update the status in our global data
+                  apis_data[taskIndex].status = newStatus;
+                  console.log("Task status updated via dropdown in global array:", apis_data[taskIndex]);
+      
+                  // In a real application, you would update the task on the server
+                  // await updateTaskStatus(taskId, newStatus);
+                }
+              }
+            }
+          });
+      
+        // ====================================
+        // Add column functionality
+        // ====================================
+        document
+          .getElementById("add-column-btn")
+          .addEventListener("click", () => {
+            // This would typically open a modal to configure the new column
+            alert("Add column functionality would be implemented here");
+            // In a real application, you would:
+            // 1. Open a modal to get the column name
+            // 2. Create a new column element
+            // 3. Add it to the board before the add-column button
+            // 4. Set up drag and drop for the new column
+          });
+      
+        // ====================================
+        // API helper functions (to be implemented)
+        // ====================================
+        async function postNewTask(taskData) {
+          //Implementation for posting a new task to the API
+          return fetch('/tasks/api/tasks/', {
+          method: 'POST',
+          headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+          'Content-Type': 'application/json'
+          },
+             body: JSON.stringify(taskData)
+           }).then(response => {
+             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+             return response.json();
+           });
+        }
+      
+        async function updateTaskStatus(taskId, newStatus) {
+          // Implementation for updating a task's status in the API
+          // return fetch(`/tasks/api/tasks/${taskId}/`, {
+          //   method: 'PATCH',
+          //   headers: {
+          //     'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+          //     'Content-Type': 'application/json'
+          //   },
+          //   body: JSON.stringify({ status: newStatus })
+          // }).then(response => {
+          //   if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          //   return response.json();
+          // });
+        }
+      
+        async function deleteTask(taskId) {
+          // Implementation for deleting a task from the API
+          // return fetch(`/tasks/api/tasks/${taskId}/`, {
+          //   method: 'DELETE',
+          //   headers: {
+          //     'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+          //     'Content-Type': 'application/json'
+          //   }
+          // }).then(response => {
+          //   if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          //   return response.status === 204 ? null : response.json();
+          // });
+        }
+      
+        // Start fetching data when the page loads
+        fetchData();
+      });
+    </script>
+  </body>
+</html>

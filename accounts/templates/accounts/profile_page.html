@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}User Profile{% endblock title %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/profile_page.css' %}">
+{% endblock styles %}
+
+{% block content %}
+    <div class="profile-container">
+        {% include "accounts/includes/profile_page_components/profile_page_header.html" %}
+        {% include "accounts/includes/profile_page_components/profile_page_details.html" %}
+    </div>
+{% endblock content %}

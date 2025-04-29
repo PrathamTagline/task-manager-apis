@@ -1,0 +1,154 @@
+<div class="board-content">
+  <!-- To Do Column -->
+  <div class="board-column" id="todo-column">
+    <div class="column-header">
+      <span>TO DO <span class="column-count" id="todo-count">2</span></span>
+    </div>
+    <div class="tasks-container" id="todo-tasks">
+      <div class="task-card" data-task-id="KAN-1">
+        <div class="task-title">TASK 1</div>
+        <div class="task-meta">
+          <div class="task-id">
+            <span class="task-checkbox"></span>
+            KAN-1
+          </div>
+          <div class="task-assignee">
+            <div
+              class="avatar"
+              style="width: 24px; height: 24px; font-size: 12px"
+            >
+              JP
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="task-card" data-task-id="KAN-2">
+        <div class="task-title">TASK 2</div>
+        <div class="task-meta">
+          <div class="task-id">
+            <span class="task-checkbox"></span>
+            KAN-2
+          </div>
+          <div class="task-assignee">
+            <div
+              class="avatar"
+              style="width: 24px; height: 24px; font-size: 12px"
+            >
+              JP
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="add-issue" id="add-todo-task">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Create issue
+      </div>
+    </div>
+  </div>
+
+  <!-- In Progress Column -->
+  <div class="board-column" id="in-progress-column">
+    <div class="column-header">
+      <span
+        >IN PROGRESS
+        <span class="column-count" id="progress-count">1</span></span
+      >
+    </div>
+    <div class="tasks-container" id="progress-tasks">
+      <div class="task-card" data-task-id="KAN-3">
+        <div class="task-title">TASK 3</div>
+        <div class="task-meta">
+          <div class="task-id">
+            <span class="task-checkbox"></span>
+            KAN-3
+          </div>
+          <div class="task-assignee">
+            <div
+              class="avatar"
+              style="width: 24px; height: 24px; font-size: 12px"
+            >
+              JP
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="add-issue" id="add-progress-task">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Create issue
+      </div>
+    </div>
+  </div>
+
+  <!-- Done Column -->
+  <div class="board-column" id="done-column">
+    <div class="column-header">
+      <span
+        >DONE <span class="column-count" id="done-count">0</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          style="margin-left: 4px; color: #36b37e"
+        >
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </span>
+    </div>
+    <div class="tasks-container" id="done-tasks">
+      <div class="add-issue" id="add-done-task">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Create issue
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Column Button -->
+  <div class="add-column" id="add-column-btn">
+    <span class="add-icon">+</span> Add column
+  </div>
+</div>

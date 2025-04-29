@@ -1,0 +1,42 @@
+<!-- templates/project_detail.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Project Details</title>
+</head>
+<body>
+  <h1>Project Details</h1>
+  <div id="project-data">Loading...</div>
+
+  <script>
+    const projectKey = "{{ key }}";
+    const apiUrl = `/projects/api/projects/${projectKey}/`;
+    const token = localStorage.getItem('access_token');
+
+    fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    .then(response => {
+      if (!response.ok) throw new Error("Unauthorized or Not Found");
+      return response.json();
+    })
+    .then(data => {
+      const container = document.getElementById('project-data');
+      container.innerHTML = `
+        <h2>${data.name}</h2>
+        <p><strong>Description:</strong> ${data.description}</p>
+        <p><strong>Status:</strong> ${data.status}</p>
+      `;
+    })
+    .catch(error => {
+      console.error('Error fetching project:', error);
+      document.getElementById('project-data').innerText = "Failed to load project details.";
+    });
+  </script>
+</body>
+</html>

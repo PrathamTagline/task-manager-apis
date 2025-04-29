@@ -1,0 +1,55 @@
+<form id="signupForm">
+    <div class="name-fields">
+        <div class="input-group">
+            <label for="firstname">First Name</label>
+            <input type="text" id="firstname" placeholder="Enter first name" required>
+            <span class="error-message" id="firstNameError"></span>
+        </div>
+        
+        <div class="input-group">
+            <label for="lastname">Last Name</label>
+            <input type="text" id="lastname" placeholder="Enter last name" required>
+            <span class="error-message" id="lastNameError"></span>
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Enter username" required>
+        <span class="error-message" id="usernameError"></span>
+    </div>
+    
+    <div class="input-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="Enter your email" required>
+        <span class="error-message" id="emailError"></span>
+    </div>
+    
+    <div class="input-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Create password" required>
+        <div class="password-requirements">
+            Password must be at least 8 characters with a number and a special character
+        </div>
+        <span class="error-message" id="passwordError"></span>
+    </div>
+    
+    <div class="input-group">
+        <label for="confirm-password">Confirm Password</label>
+        <input type="password" id="confirm-password" placeholder="Confirm password" required>
+        <span class="error-message" id="confirmPasswordError"></span>
+    </div>
+    
+    <div class="terms">
+        <input type="checkbox" id="agree" required>
+        <label for="agree">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+        <span class="error-message" id="termsError"></span>
+    </div>
+    
+    <button type="submit" class="signup-button">Create Account</button>
+    
+    <div class="signin-link">
+        Already have an account? <a href="signin_page">Sign in</a>
+    </div>
+    
+</form>

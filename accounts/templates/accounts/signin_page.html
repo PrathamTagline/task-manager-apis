@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Login Page{% endblock title %}
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/signin_page.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home_page.css' %}">
+{% endblock styles %}
+
+{% block content %}
+{% include "core/includes/home_page_components/home_page_navigation_bar_section.html" %}
+<div></div>
+    <div class="signin-container">
+        {% include "accounts/includes/signin_page_components/signin_page_header.html" %}
+        {% include "accounts/includes/signin_page_components/signin_page_form.html" %}
+    </div>
+
+    <script type="module" src="{% static 'js/sigin_logic.js' %}"></script>
+{% endblock content%}

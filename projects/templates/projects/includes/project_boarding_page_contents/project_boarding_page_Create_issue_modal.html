@@ -1,0 +1,48 @@
+<div class="modal-overlay" id="create-issue-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Create issue</h2>
+      <button class="modal-close">&times;</button>
+    </div>
+    <div class="modal-content">
+      <div class="form-group">
+        <label for="issue-title" class="form-label">Issue title</label>
+        <input
+          type="text"
+          id="issue-title"
+          class="form-control"
+          placeholder="Enter issue title"
+        />
+      </div>
+      <div class="form-group">
+        <label for="issue-description" class="form-label">Description</label>
+        <textarea
+          id="issue-description"
+          class="form-control"
+          placeholder="Enter issue description"
+        ></textarea>
+      </div>
+      <div class="form-group">
+        <label for="issue-status" class="form-label">Status</label>
+        <select id="issue-status" class="form-control">
+          <option value="todo">To Do</option>
+          <option value="progress">In Progress</option>
+          <option value="done">Done</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="issue-assignee" class="form-label">Assignee</label>
+        <select id="issue-assignee" class="form-control">
+          <option value="jp">John Doe (JP)</option>
+          <option value="pp">Paul Smith (PP)</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cancel-create-issue">Cancel</button>
+      <button class="btn btn-primary" id="confirm-create-issue">
+        Create issue
+      </button>
+    </div>
+  </div>
+</div>

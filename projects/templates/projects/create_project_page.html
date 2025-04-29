@@ -1,0 +1,431 @@
+<!-- filepath: /Users/mac/Desktop/task_manager_webapp/projects/templates/projects/create_project_page.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Create Project
+{% endblock title %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/create_project.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard_page.css' %}">
+{% endblock styles %}
+
+{% block content %}
+
+<!-- Top Navigation-Bar -->
+{% include "core/includes/dashboard_page_components/dashboard_page_top_navigation_bar.html" %}
+
+<!-- Main content -->
+<div class="main-content">
+    <h1 class="section-title">Create New Project</h1>
+    <!-- Project Form -->
+    {% include "projects/includes/project_form.html" %}
+  </div>
+  
+    <!-- Team Members List -->
+  {% include "projects/includes/add_member_modal.html" %}
+
+
+<script>
+// Variables to keep track of selected users
+let selectedUser = null;
+let selectedUserItem = null;
+let teamMembers = [];
+
+// DOM Elements
+const addMemberBtn = document.getElementById('add-member-btn');
+const addMemberModal = document.getElementById('add-member-modal');
+const modalClose = document.getElementById('modal-close');
+const cancelAddMember = document.getElementById('cancel-add-member');
+const confirmAddMember = document.getElementById('confirm-add-member');
+const userSearchInput = document.getElementById('user-search');
+const userList = document.getElementById('user-list');
+const teamMembersList = document.getElementById('team-members-list');
+const roleSelect = document.getElementById('role-select');
+
+// Image upload preview
+const imageUpload = document.getElementById('image-upload');
+const imagePreview = document.getElementById('image-preview');
+const previewContainer = document.getElementById('preview-container');
+const removeImage = document.getElementById('remove-image');
+const uploadLabel = document.getElementById('upload-label');
+
+imageUpload.addEventListener('change', function() {
+  const file = this.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      imagePreview.src = e.target.result;
+      previewContainer.classList.add('active');
+      uploadLabel.style.display = 'none';
+    }
+    reader.readAsDataURL(file);
+  }
+});
+
+removeImage.addEventListener('click', function(e) {
+  e.preventDefault();
+  imageUpload.value = '';
+  imagePreview.src = '';
+  previewContainer.classList.remove('active');
+  uploadLabel.style.display = 'flex';
+});
+
+// Open modal when "Add Member" button is clicked
+addMemberBtn.addEventListener('click', function() {
+  addMemberModal.classList.add('active');
+  selectedUser = null;
+  selectedUserItem = null;
+  confirmAddMember.disabled = true;
+  userSearchInput.value = '';
+  userList.innerHTML = '<p>Start typing to search for users...</p>';
+});
+
+// Close modal when close button is clicked
+modalClose.addEventListener('click', function() {
+  addMemberModal.classList.remove('active');
+});
+
+// Close modal when cancel button is clicked
+cancelAddMember.addEventListener('click', function() {
+  addMemberModal.classList.remove('active');
+});
+
+// Close modal when clicking outside of it
+addMemberModal.addEventListener('click', function(e) {
+  if (e.target === addMemberModal) {
+    addMemberModal.classList.remove('active');
+  }
+});
+
+// Fetch users dynamically based on search input
+userSearchInput.addEventListener('input', async function() {
+  const searchTerm = this.value.trim();
+  
+  if (searchTerm.length === 0) {
+    userList.innerHTML = '<p>Start typing to search for users...</p>';
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/accounts/api/users/?email=${encodeURIComponent(searchTerm)}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+      userList.innerHTML = '';
+      if (data.length > 0) {
+        data.forEach(user => {
+          const userItem = document.createElement('div');
+          userItem.className = 'user-item';
+          userItem.dataset.id = user.id;
+          userItem.dataset.email = user.email;
+          userItem.dataset.firstName = user.first_name || '';
+          userItem.dataset.lastName = user.last_name || '';
+          
+          // Create initials from name or email
+          let initials = '';
+          if (user.first_name && user.first_name.length > 0) {
+            initials += user.first_name[0].toUpperCase();
+          }
+          if (user.last_name && user.last_name.length > 0) {
+            initials += user.last_name[0].toUpperCase();
+          }
+          if (initials === '') {
+            initials = user.email[0].toUpperCase();
+          }
+          
+          userItem.dataset.avatar = initials;
+          
+          // Display name (use email if name is empty)
+          const displayName = (user.first_name || user.last_name) ? 
+                             `${user.first_name} ${user.last_name}`.trim() : 
+                             user.email;
+          
+          userItem.innerHTML = `
+            <div class="member-avatar">${initials}</div>
+            <div class="member-info">
+              <div class="member-name">${displayName}</div>
+              <div class="member-email">${user.email}</div>
+            </div>
+          `;
+          
+          userItem.addEventListener('click', function() {
+            document.querySelectorAll('.user-item').forEach(item => item.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedUser = {
+              id: this.dataset.id,
+              email: this.dataset.email,
+              first_name: this.dataset.firstName,
+              last_name: this.dataset.lastName,
+              avatar: this.dataset.avatar
+            };
+            selectedUserItem = this;
+            confirmAddMember.disabled = false;
+          });
+          
+          userList.appendChild(userItem);
+        });
+      } else {
+        userList.innerHTML = '<p>No users found.</p>';
+      }
+    } else {
+      userList.innerHTML = `<p>Error: ${data.detail || 'Failed to fetch users.'}</p>`;
+    }
+  } catch (error) {
+    userList.innerHTML = `<p>Request failed: ${error.message}</p>`;
+  }
+});
+
+// Confirm add member
+confirmAddMember.addEventListener('click', function() {
+  if (selectedUser) {
+    // Check if user is already added
+    const isDuplicate = teamMembers.some(member => member.user === selectedUser.id);
+    
+    if (!isDuplicate) {
+      // Format membership data according to the required structure
+      const memberData = {
+        user: selectedUser.id,  // Just the user ID
+        role: roleSelect.value.toUpperCase()
+      };
+      
+      // Store the complete user data for display purposes
+      const userData = {
+        id: selectedUser.id,
+        email: selectedUser.email,
+        first_name: selectedUser.first_name,
+        last_name: selectedUser.last_name,
+        avatar: selectedUser.avatar,
+        role: roleSelect.value.toUpperCase()
+      };
+      
+      // Add user to team members array (simplified format for API)
+      teamMembers.push(memberData);
+      
+      // Create and add team member item to the list (using complete user data for display)
+      const memberItem = createTeamMemberItem(userData);
+      teamMembersList.appendChild(memberItem);
+    } else {
+      alert('User is already added to the team.');
+    }
+    
+    // Close modal
+    addMemberModal.classList.remove('active');
+  }
+});
+
+// Create team member item element
+function createTeamMemberItem(userData) {
+  const memberItem = document.createElement('div');
+  memberItem.className = 'team-member-item';
+  memberItem.dataset.id = userData.id;
+  
+  // Create initials from name or email
+  let initials = userData.avatar || '';
+  if (!initials) {
+    if (userData.first_name && userData.first_name.length > 0) {
+      initials += userData.first_name[0].toUpperCase();
+    }
+    if (userData.last_name && userData.last_name.length > 0) {
+      initials += userData.last_name[0].toUpperCase();
+    }
+    if (initials === '') {
+      initials = userData.email[0].toUpperCase();
+    }
+  }
+  
+  // Display name (use email if name is empty)
+  const displayName = (userData.first_name || userData.last_name) ? 
+                     `${userData.first_name} ${userData.last_name}`.trim() : 
+                     userData.email;
+  
+  const memberAvatar = document.createElement('div');
+  memberAvatar.className = 'member-avatar';
+  memberAvatar.textContent = initials;
+  
+  const memberInfo = document.createElement('div');
+  memberInfo.className = 'member-info';
+  
+  const memberName = document.createElement('div');
+  memberName.className = 'member-name';
+  memberName.textContent = displayName;
+  
+  const memberEmail = document.createElement('div');
+  memberEmail.className = 'member-email';
+  memberEmail.textContent = userData.email;
+  
+  memberInfo.appendChild(memberName);
+  memberInfo.appendChild(memberEmail);
+  
+  const memberControls = document.createElement('div');
+  memberControls.className = 'member-controls';
+  
+  const roleSelect = document.createElement('select');
+  roleSelect.className = 'role-select';
+  
+  const roles = [
+    { value: 'DEVELOPER', text: 'Developer' },
+    { value: 'DESIGNER', text: 'Designer' },
+    { value: 'PROJECT_MANAGER', text: 'Project Manager' },
+    { value: 'QA', text: 'QA Engineer' },
+    { value: 'STAKEHOLDER', text: 'Stakeholder' },
+    { value: 'VIEWER', text: 'Viewer' }
+  ];
+  
+  roles.forEach(role => {
+    const option = document.createElement('option');
+    option.value = role.value;
+    option.textContent = role.text;
+    
+    if (role.value === userData.role) {
+      option.selected = true;
+    }
+    
+    roleSelect.appendChild(option);
+  });
+  
+  // Role change handler
+  roleSelect.addEventListener('change', function() {
+    const memberId = memberItem.dataset.id;
+    const memberIndex = teamMembers.findIndex(m => m.user === memberId);
+    
+    if (memberIndex !== -1) {
+      teamMembers[memberIndex].role = this.value;
+    }
+  });
+  
+  const removeButton = document.createElement('button');
+  removeButton.className = 'remove-member';
+  removeButton.innerHTML = '&times;';
+  
+  // Remove member handler
+  removeButton.addEventListener('click', function() {
+    const memberId = memberItem.dataset.id;
+    
+    // Remove from array
+    teamMembers = teamMembers.filter(member => member.user !== memberId);
+    
+    // Remove from DOM
+    memberItem.remove();
+  });
+  
+  memberControls.appendChild(roleSelect);
+  memberControls.appendChild(removeButton);
+  
+  memberItem.appendChild(memberAvatar);
+  memberItem.appendChild(memberInfo);
+  memberItem.appendChild(memberControls);
+  
+  return memberItem;
+}
+
+// Form submission handler
+const projectForm = document.getElementById('project-form');
+projectForm.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  // Get form values
+  const title = document.getElementById('project-title').value.trim();
+  const description = document.getElementById('project-description').value.trim();
+  const projectType = document.getElementById('project-type-select').value;
+  
+  // Validation
+  if (!title || !description || !projectType) {
+    alert('Please fill out all required fields.');
+    return;
+  }
+  
+  // Create project data object with the exact structure needed by the API
+  const projectData = {
+    name: title,
+    description: description,
+    type: projectType.toUpperCase(),
+    image: null,
+    memberships_input: teamMembers  // Array of {user: "user-id", role: "ROLE"}
+  };
+  
+  try {
+    // Handle image if selected
+    if (imageUpload.files.length > 0) {
+      const file = imageUpload.files[0];
+      
+      // For FormData approach (if API expects multipart/form-data)
+      const formData = new FormData();
+      formData.append('name', title);
+      formData.append('description', description);
+      formData.append('type', projectType.toUpperCase());
+      formData.append('image', file);
+      formData.append('memberships_input', JSON.stringify(teamMembers));
+      
+      await submitProjectWithImage(formData);
+    } else {
+      // No image selected, just send the JSON data
+      await submitProject(projectData);
+    }
+  } catch (err) {
+    console.error('Request failed', err);
+    alert('An error occurred while creating the project. Please try again.');
+  }
+});
+
+async function submitProject(projectData) {
+  try {
+    const response = await fetch('/projects/api/projects/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+      },
+      body: JSON.stringify(projectData)
+    });
+
+    handleResponse(response);
+  } catch (err) {
+    console.error('Request failed', err);
+    alert('An error occurred while creating the project. Please try again.');
+  }
+}
+
+async function submitProjectWithImage(formData) {
+  try {
+    console.log('Submitting project with image:', formData);
+    const response = await fetch('/projects/api/projects/', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+      },
+      body: formData
+    });
+
+    handleResponse(response);
+  } catch (err) {
+    console.error('Request failed', err);
+    alert('An error occurred while creating the project. Please try again.');
+  }
+}
+
+async function handleResponse(response) {
+  if (response.ok) {
+    const data = await response.json();
+    alert('Project created successfully!');
+    window.location.href = '/dashboard/';
+  } else {
+    try {
+      const error = await response.json();
+      alert('Error: ' + (error.message || error.detail || 'Failed to create project.'));
+    } catch {
+      alert('Error: Failed to create project.');
+    }
+  }
+}
+</script>
+
+{% endblock content %}
