@@ -51,6 +51,9 @@ class Task(models.Model):
             self.key = self.generate_task_key() 
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return f"{self.title} ({self.key})"
+
 class SubTask(models.Model):
     STATUS_CHOICES = Task.STATUS_CHOICES
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -68,6 +71,10 @@ class SubTask(models.Model):
         if not self.key:
             self.key = self.generate_subtask_key()
         super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"{self.title} ({self.key})"
+
 
 class TaskComment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -76,6 +83,9 @@ class TaskComment(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Comment by {self.user.username} on {self.task.title}"
+
 class TaskIssue(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='issues')
@@ -83,3 +93,6 @@ class TaskIssue(models.Model):
     description = models.TextField()
     resolved = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Issue by {self.user.username} on {self.task.title}"        

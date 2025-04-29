@@ -109,13 +109,13 @@ class CustomTokenVerifySerializer(TokenVerifySerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile_iamge', 'phone', 'address', 'created_at', 'updated_at']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile_image', 'phone', 'address', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
     def update(self, instance, validated_data):
         # Handle profile image upload separately if needed
-        profile_image = validated_data.pop('profile_iamge', None)
+        profile_image = validated_data.pop('profile_image', None)
         if profile_image:
-            instance.profile_iamge = profile_image
+            instance.profile_image = profile_image
         
         return super().update(instance, validated_data)
