@@ -84,3 +84,44 @@ class TaskWriteSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
+    
+
+
+
+
+
+class SubTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubTask
+        fields = "__all__"
+        read_only_fields = ['id', 'key','created_at',"task"]
+        extra_kwargs = {
+            'title': {'required': True},
+            'status': {'required': True},
+        }
+
+    def create(self, validated_data):
+        project_key = self.context.get('project_key')
+        task_key = self.context.get('task_key')
+        request_user = self.context['request'].user
+
+        try:
+            task = Task.objects.get(key=task_key, project__key=project_key)
+        except Task.DoesNotExist:
+            raise serializers.ValidationError("Invalid project or task key.")
+
+        validated_data['task'] = task
+       
+
+        return SubTask.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
+    
+
+    def distroy(self, instance):
+        instance.delete()
+        return instance

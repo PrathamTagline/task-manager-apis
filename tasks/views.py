@@ -4,8 +4,8 @@ from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from projects.models import Project
-from .models import Task
-from .serializers import TaskSerializer, TaskWriteSerializer
+from .models import SubTask, Task
+from .serializers import SubTaskSerializer, TaskSerializer, TaskWriteSerializer
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -117,3 +117,29 @@ class TaskViewSet(viewsets.ModelViewSet):
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+
+class SubTaskViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing subtasks.
+    """
+    queryset = SubTask.objects.all()  # ✅ Fixed here
+    serializer_class = SubTaskSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'key'
+
+    def get_queryset(self):
+        project_key = self.kwargs.get('project_key')
+        task_key = self.kwargs.get('task_key')
+        return SubTask.objects.filter(
+            task__project__key=project_key,
+            task__key=task_key
+        )
+
+    def get_serializer_context(self):  # ✅ Added this
+        context = super().get_serializer_context()
+        context['project_key'] = self.kwargs.get('project_key')
+        context['task_key'] = self.kwargs.get('task_key')
+        return context
+
+    
