@@ -3,9 +3,13 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import TaskViewSet
 
-router = DefaultRouter()
-router.register(r'projects/(?P<project_key>[^/]+)/tasks', TaskViewSet, basename='task')
+taskrouter = DefaultRouter()
+taskrouter.register(r'projects/(?P<project_key>[^/]+)/tasks', TaskViewSet, basename='task')
+
+subtasksrouter = DefaultRouter()
+subtasksrouter.register(r'projects/(?P<project_key>[^/]+)/tasks/(?P<task_key>[^/]+)/subtasks', TaskViewSet, basename='task')
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('', include(taskrouter.urls)),
+    path('', include(subtasksrouter.urls)),
 ]
