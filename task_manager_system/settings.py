@@ -29,6 +29,17 @@ AUTH_USER_MODEL = 'accounts.User'  # replace `yourapp` with the actual app name
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+ASGI_APPLICATION = 'task_manager_system.asgi.application'
+
+# Redis settings (required for Channels)
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 # settings.py
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = 'smtp.gmail.com'  # or another SMTP server
@@ -64,6 +75,7 @@ INSTALLED_APPS = [
     'accounts',  # Your custom user app
     'projects',  # Your projects app
     'tasks', # Your tasks app
+    'channels'
 ]
 
 # REST Framework settings
