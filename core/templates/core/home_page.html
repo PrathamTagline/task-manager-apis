@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}home page{% endblock title %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/home_page.css' %}">
+{% endblock styles %}
+
+{% block content %}
+
+    <!-- Navigation Bar -->
+    {% include "core/includes/home_page_components/home_page_navigation_bar_section.html" %}
+    
+    <!-- Hero Section -->
+     {% include "core/includes/home_page_components/home_page_hero_section.html" %}
+    
+    <!-- Features Section -->
+    {% include "core/includes/home_page_components/home_page_feature_section.html" %}
+    
+    <!-- How It Works Section -->
+    {% include "core/includes/home_page_components/home_page_how_its_work_section.html" %}
+    
+    <!-- App Screenshot Section -->
+    {% include "core/includes/home_page_components/home_page_app_shortcut_section.html" %}
+    
+    <!-- Call to Action Section -->
+    {% include "core/includes/home_page_components/home_page_action_section.html" %}
+    
+    <!-- Footer -->
+    {% include "core/includes/home_page_components/home_page_footer_section.html" %}
+
+    <!-- Scripts -->
+    <script src="{% static "js/home_page.js" %}" ></script>
+{% endblock content %}
+<a href=""></a>

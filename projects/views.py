@@ -6,13 +6,13 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied, NotFound
 from django.db.models import Q
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from urllib.parse import unquote
 
 from .models import Project, ProjectMembership
 from .serializers import ProjectSerializer, ProjectMembershipSerializer
 from accounts.models import User
-
+from django.http import HttpResponse
 
 class ProjectViewSet(viewsets.ModelViewSet):
     """
@@ -279,3 +279,22 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return project, membership
 
 
+
+def project_detail_view(request, key):
+    return render(request, 'projects/boarding_page.html', {'key': key})
+
+def create_project(request):
+    return render(request, 'projects/create_project_page.html')
+
+def boarding_view(request):
+    return render(request, 'projects/boarding_page.html')
+
+def search_view(request):
+    return render(request, 'projects/search_bar.html')
+
+def all_project_view(request):
+    return render(request,"projects/all_projects_page.html")
+
+
+def temp(request):
+    return HttpResponse("hellow")

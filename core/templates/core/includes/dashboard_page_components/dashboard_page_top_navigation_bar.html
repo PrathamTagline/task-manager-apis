@@ -1,0 +1,23 @@
+  <div class="top-nav">
+    <div class="top-nav-left">
+      <div class="logo">task manager</div>
+      <div class="top-nav-links">
+        <a href="{% url "dashboard" %}" class="top-nav-link">dashboard</a>
+      </div>
+    </div>
+    <div class="top-nav-right">
+      <button class="create-btn" style="margin-left: 16px;" onclick="window.location.href='{% url 'create_project' %}'">
+        Create Project
+    </button>
+      <button class="icon-btn">🔔</button>
+      <div class="avatar" id="avatar">PP</div>
+        <!-- Popup Menu -->
+        <div class="popup-menu" id="popup-menu">
+            <ul>
+                <li id="profile-link">Profile</li>
+                <li id="logout-link">Logout</li>
+            </ul>
+        </div>
+      </div>
+    </div>
+  </div>

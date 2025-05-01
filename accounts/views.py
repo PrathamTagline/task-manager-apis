@@ -89,16 +89,11 @@ class LogoutView(APIView):
 
 
     
-#template view
 def signin_page_view(request):
-    return render(request, 'accounts/signin_page.html')
+   return render(request, 'accounts/signin_page.html')
 
 def signup_page_view(request):
-    return render(request, 'accounts/signup_page.html')
-
-def forgot_password_page_view(request):
-    return render(request, 'accounts/forgot_password_page.html')
+   return render(request, 'accounts/signup_page.html')       
 
 def profile_page_view(request):
-    return render(request, 'accounts/profile_page.html')
-
+   return render(request, 'accounts/profile_page.html')

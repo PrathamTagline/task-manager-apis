@@ -1,83 +1,20 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Login</title>
-  </head>
-  <body>
-    <h2>Login Page</h2>
-    <form id="loginForm">
-      <label for="email">Email:</label><br />
-      <input type="email" id="email" name="email" required /><br /><br />
+{% extends "base.html" %}
+{% load static %}
 
-      <label for="password">Password:</label><br />
-      <input type="password" id="password" name="password" required /><br /><br />
+{% block title %}Login Page{% endblock title %}
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/signin_page.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home_page.css' %}">
+{% endblock styles %}
 
-      <button type="submit">Login</button>
-    </form>
+{% block content %}
 
-    <p id="message"></p>
+    {% include "core/includes/home_page_components/home_page_navigation_bar_section.html" %}
 
-    <!-- Links for Forgot Password and Sign Up -->
-    <p>
-      <a href="/accounts/forgot-password/" id="forgotPasswordLink">Forgot Password?</a> |
-      <a href="/accounts/signup/" id="signupLink">Sign Up</a>
-    </p>
+    <div class="signin-container">
+        {% include "accounts/includes/signin_page_components/signin_page_header.html" %}
+        {% include "accounts/includes/signin_page_components/signin_page_form.html" %}
+    </div>
 
-    <script>
-      const loginForm = document.getElementById("loginForm");
-      const messageEl = document.getElementById("message");
-
-      // 🔐 Check if already logged in
-      const accessToken = localStorage.getItem("access_token");
-      if (accessToken) {
-        fetch("http://127.0.0.1:8000/accounts/api/token/verify/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token: accessToken }),
-        }).then((res) => {
-          if (res.ok) {
-            // Token is valid, redirect to dashboard
-            window.location.href = "/dashboard/";
-          }
-        });
-      }
-
-      // 🧾 Login form submission
-      loginForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
-
-        const email = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value.trim();
-
-        const payload = { email, password };
-
-        try {
-          const response = await fetch(
-            "http://127.0.0.1:8000/accounts/api/signin/",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(payload),
-            }
-          );
-
-          const data = await response.json();
-
-          if (response.ok) {
-            localStorage.setItem("access_token", data.access);
-            localStorage.setItem("refresh_token", data.refresh);
-            window.location.href = "/dashboard/";
-          } else {
-            messageEl.textContent = data.detail || "Login failed.";
-            messageEl.style.color = "red";
-          }
-        } catch (error) {
-          messageEl.textContent = "Error: " + error.message;
-          messageEl.style.color = "red";
-        }
-      });
-    </script>
-  </body>
-</html>
+    <script type="module" src="{% static 'js/sigin_logic.js' %}"></script>
+{% endblock content%}

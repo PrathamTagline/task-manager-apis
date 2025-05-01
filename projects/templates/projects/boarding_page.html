@@ -6,12 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KAN Board</title>
     <link rel="stylesheet" href="{% static 'css/boarding.css' %}" />
+    <link rel="stylesheet" href="{% static "css/dashboard_page.css" %}">
   </head>
   <body>
-    <!-- project boarding page nvbar -->
-    {% include "projects/includes/project_boarding_page_contents/projects_boarding_page_navbar.html"%}
+      <!-- Top Navigation-Bar -->
+  {% include "core/includes/dashboard_page_components/dashboard_page_top_navigation_bar.html" %}
 
-    <!-- project boarding page header -->
+    <div class="content" style="padding : 50px;">
+      <!-- project boarding page header -->
     {% include "projects/includes/project_boarding_page_contents/projects_boarding_page_header.html"%}
 
     <!-- Rest of the existing content remains the same until task-detail-modal -->
@@ -44,6 +46,7 @@
 
     <!-- Delete Task Confirmation Modal -->
     {% include "projects/includes/project_boarding_page_contents/project_boarding_page_delete_task_confirmations_modal.html"%}
+    </div>
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {

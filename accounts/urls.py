@@ -7,10 +7,9 @@ from .views import (
     TokenVerificationView,
     LogoutView,
     UsersDataViaEmailAndPattern,
+    profile_page_view,
     signin_page_view,
     signup_page_view,
-    forgot_password_page_view,
-    profile_page_view,
 )
 
 urlpatterns = [
@@ -24,9 +23,7 @@ urlpatterns = [
     path('api/logout/', LogoutView.as_view(), name='logout'),
 
 
-    # Template views
-    path('signin/', signin_page_view, name='signin_page'),
+     path('signin/', signin_page_view, name='signin_page'),
     path('signup/', signup_page_view, name='signup_page'),
-    path('forgot-password/', forgot_password_page_view, name='forgot_password_page'),
     path('profile/', profile_page_view, name='profile_page'),
 ]

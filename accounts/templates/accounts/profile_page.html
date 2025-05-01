@@ -1,64 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>User Profile</title>
-</head>
-<body>
-    <h1>User Profile</h1>
-    <div id="user-details">
-        <p><strong>Username:</strong> <span id="username"></span></p>
-        <p><strong>Email:</strong> <span id="email"></span></p>
-        <p><strong>First Name:</strong> <span id="first_name"></span></p>
-        <p><strong>Last Name:</strong> <span id="last_name"></span></p>
-        <p><strong>Phone:</strong> <span id="phone"></span></p>
-        <p><strong>Address:</strong> <span id="address"></span></p>
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}User Profile{% endblock title %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/profile_page.css' %}">
+{% endblock styles %}
+
+{% block content %}
+    <div class="profile-container">
+        {% include "accounts/includes/profile_page_components/profile_page_header.html" %}
+        {% include "accounts/includes/profile_page_components/profile_page_details.html" %}
     </div>
-
-    <div id="error" style="color: red;"></div>
-
-    <script>
-        const token = localStorage.getItem('access_token'); // Or however you store it
-
-        if (!token) {
-            document.getElementById('error').textContent = 'No token found. Please log in.';
-        } else {
-            // First, verify the token
-            fetch('http://127.0.0.1:8000/accounts/api/token/verify/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: token })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Token verification failed. Please log in again.');
-                }
-                // If token is valid, fetch user data
-                return fetch('http://127.0.0.1:8000/accounts/api/user/', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch user data.');
-                }
-                return response.json();
-            })
-            .then(data => {
-                document.getElementById('username').textContent = data.username;
-                document.getElementById('email').textContent = data.email;
-                document.getElementById('first_name').textContent = data.first_name || '-';
-                document.getElementById('last_name').textContent = data.last_name || '-';
-                document.getElementById('phone').textContent = data.phone || '-';
-                document.getElementById('address').textContent = data.address || '-';
-            })
-            .catch(error => {
-                document.getElementById('error').textContent = error.message;
-                console.error('Error:', error);
-            });
-        }
-    </script>
-</body>
-</html>
+{% endblock content %}

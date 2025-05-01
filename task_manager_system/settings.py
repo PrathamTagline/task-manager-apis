@@ -76,7 +76,6 @@ INSTALLED_APPS = [
     'projects',  # Your projects app
     'tasks', # Your tasks app
     'channels',
-    'notifications',  # Your notifications app
     'core',  # Your core app
 ]
 

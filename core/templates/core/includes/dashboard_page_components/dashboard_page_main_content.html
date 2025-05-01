@@ -1,0 +1,53 @@
+<!-- Main content area -->
+<div id="dashboard-view" class="main-content">
+  <h1 class="section-title">For you</h1>
+
+  <div class="section-header">
+    <h2 class="section-title-small">Recent projects</h2>
+    <div class="header-actions">
+      <a href="{% url "all-projects" %}" class="view-all" id="view-all-projects-link"
+        >View all projects</a
+      >
+      <button class="add-project-btn">+</button>
+    </div>
+  </div>
+
+  <div class="projects-grid" id="projects-grid">
+    
+  </div>
+
+  <div class="tabs">
+    <div class="tab">Worked on</div>
+    <div class="tab">Viewed</div>
+    <div class="tab active">
+      Assigned to me
+      <span
+        style="
+          margin-left: 4px;
+          background-color: #ebecf0;
+          border-radius: 3px;
+          padding: 0 6px;
+        "
+        >1</span
+      >
+    </div>
+    <div class="tab">Starred</div>
+    <div class="tab">Boards</div>
+  </div>
+
+  <div class="task-list-header">OPEN</div>
+
+  <div class="task-item">
+    <div class="task-checkbox">
+      <input type="checkbox" />
+    </div>
+    <div class="task-info">
+      <div class="task-title">efwwafw</div>
+      <div class="task-meta">SUP-3 • Support</div>
+    </div>
+    <div class="task-status">Open</div>
+  </div>
+</div>
+
+<!-- Projects view -->
+<div id="projects-view" class="main-content"></div>
