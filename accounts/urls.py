@@ -6,13 +6,27 @@ from .views import (
     UserDataSetView,
     TokenVerificationView,
     LogoutView,
+    UsersDataViaEmailAndPattern,
+    signin_page_view,
+    signup_page_view,
+    forgot_password_page_view,
+    profile_page_view,
 )
 
 urlpatterns = [
-    path('signin/', SigninView.as_view(), name='signin'),
-    path('signup/', SignupView.as_view(), name='signup'),
-    path('forgot-password/', ForgotPasswordView.as_view(), name='forgot_password'),
-    path('user/', UserDataSetView.as_view(), name='user_data_set'),
-    path('token/verify/', TokenVerificationView.as_view(), name='token_verify'),
-    path('logout/', LogoutView.as_view(), name='logout'),
+    # API views
+    path('api/signin/', SigninView.as_view(), name='signin'),
+    path('api/signup/', SignupView.as_view(), name='signup'),
+    path('api/forgot-password/', ForgotPasswordView.as_view(), name='forgot_password'),
+    path('api/user/', UserDataSetView.as_view(), name='user_data_set'),
+    path('api/user/search/', UsersDataViaEmailAndPattern.as_view(), name='user_data_set_search'),
+    path('api/token/verify/', TokenVerificationView.as_view(), name='token_verify'),
+    path('api/logout/', LogoutView.as_view(), name='logout'),
+
+
+    # Template views
+    path('signin/', signin_page_view, name='signin_page'),
+    path('signup/', signup_page_view, name='signup_page'),
+    path('forgot-password/', forgot_password_page_view, name='forgot_password_page'),
+    path('profile/', profile_page_view, name='profile_page'),
 ]

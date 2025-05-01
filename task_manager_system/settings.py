@@ -75,7 +75,9 @@ INSTALLED_APPS = [
     'accounts',  # Your custom user app
     'projects',  # Your projects app
     'tasks', # Your tasks app
-    'channels'
+    'channels',
+    'notifications',  # Your notifications app
+    'core',  # Your core app
 ]
 
 # REST Framework settings

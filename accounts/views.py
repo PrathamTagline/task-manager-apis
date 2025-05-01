@@ -1,14 +1,16 @@
+from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework import generics
+from accounts.models import User
 from .serializers import (
     SignupSerializer,
     ForgotPasswordSerializer,
     CustomTokenObtainPairSerializer,
-    CustomTokenVerifySerializer,
     UserSerializer,
 )
 from rest_framework_simplejwt.views import TokenVerifyView as SimpleJWTTokenVerifyView
@@ -46,27 +48,28 @@ class UserDataSetView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        email = request.query_params.get('email', None)
-        email_pattern = request.query_params.get('email_pattern', None)
-
-        if email and email_pattern:
-            users = UserSerializer.Meta.model.objects.filter(
-                email__iexact=email, email__istartswith=email_pattern
-            )
-        elif email:
-            users = UserSerializer.Meta.model.objects.filter(email__iexact=email)
-        elif email_pattern:
-            users = UserSerializer.Meta.model.objects.filter(email__istartswith=email_pattern)
-        else:
-            return Response({"error": "At least one of 'email' or 'email_pattern' is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-        if users.exists():
-            serializer = UserSerializer(users, many=True)
+        
+        user = request.user
+        if user:
+            serializer = UserSerializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response({"error": "No users found matching the criteria."}, status=status.HTTP_404_NOT_FOUND)
     
 
+
+class UsersDataViaEmailAndPattern(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        email = self.request.query_params.get('email')
+        email_pattern = self.request.query_params.get('email_pattern')
+        if email:
+            return User.objects.filter(email=email)
+        
+        if email_pattern:
+            return User.objects.filter(email__icontains=email_pattern)
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -81,3 +84,21 @@ class LogoutView(APIView):
             return Response({"message": "Logged out successfully."}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+
+    
+#template view
+def signin_page_view(request):
+    return render(request, 'accounts/signin_page.html')
+
+def signup_page_view(request):
+    return render(request, 'accounts/signup_page.html')
+
+def forgot_password_page_view(request):
+    return render(request, 'accounts/forgot_password_page.html')
+
+def profile_page_view(request):
+    return render(request, 'accounts/profile_page.html')
+
