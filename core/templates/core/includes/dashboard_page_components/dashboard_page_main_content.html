@@ -5,9 +5,11 @@
   <div class="section-header">
     <h2 class="section-title-small">Recent projects</h2>
     <div class="header-actions">
-      <a href="{% url "all-projects" %}" class="view-all" id="view-all-projects-link"
-        >View all projects</a
-      >
+      <a href="#" onclick="window.location.href='{% url 'all-projects' %}'; return false;" class="view-all" id="view-all-projects-link">
+        View all projects
+    </a>
+    
+    
       <button class="add-project-btn">+</button>
     </div>
   </div>

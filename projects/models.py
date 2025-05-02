@@ -67,7 +67,7 @@ class Project(models.Model):
         is_new = self.pk is None
 
         # Check if the name has changed and regenerate the key
-        if not is_new:
+        if not is_new and Project.objects.filter(pk=self.pk).exists():
             original = Project.objects.get(pk=self.pk)
             if original.name != self.name:
                 self.key = self.generate_unique_key()
@@ -76,8 +76,8 @@ class Project(models.Model):
         if not self.key:
             self.key = self.generate_unique_key()
 
-            # Save the instance first to ensure the ID is generated
-            super().save(*args, **kwargs)
+        # Save the instance first to ensure the ID is generated
+        super().save(*args, **kwargs)
 
         if is_new and self.image:
             # Store the uploaded image in the correct path
