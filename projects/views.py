@@ -150,15 +150,13 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return Response({"detail": "Project deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
     # ------------------- Membership Actions -------------------
 
-    @action(detail=True, methods=['get'], url_path='memberships')
-    def get_memberships(self, request, key=None):
-        """
-        Retrieve all memberships of a project.
-        """
+    @action(detail=True, methods=['get'], url_path='memberships/all')
+    def get_all_memberships(self, request, key=None):
         project = self.get_object()
         memberships = ProjectMembership.objects.filter(project=project)
         serializer = ProjectMembershipSerializer(memberships, many=True)
         return Response(serializer.data)
+
 
     @action(detail=True, methods=['post'], url_path='memberships/add')
     def add_membership(self, request, key=None):
