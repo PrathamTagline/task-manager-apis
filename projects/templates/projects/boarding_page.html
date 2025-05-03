@@ -626,117 +626,38 @@
     </div>
 
     <script>
-        // Sample data
-        const tasks = [
-            {
-                "id": "9b90fc8f-6c1f-47f8-9624-f448052c1032",
-                "title": "Create dashboard page",
-                "key": "PA-T1",
-                "description": "Create dashboard page create dashboard page create dashboard page create dashboard page create dashboard page create dashboard page create dashboard page create dashboard page create dashboard page create dashboard page create dashboard page",
-                "assigned_to": {
-                    "id": "7a4321fe-7aa3-499e-8b14-029eec1f1eee",
-                    "username": "pratham_patel",
-                    "email": "prathamp.tagline@gmail.com",
-                    "first_name": "pratham",
-                    "last_name": "patel"
-                },
-                "assigned_by": {
-                    "id": "b01adf3a-72a1-4652-8532-5efc888460d3",
-                    "username": "roshni_rajput",
-                    "email": "roshnir.tagline@gmail.com",
-                    "first_name": "",
-                    "last_name": ""
-                },
-                "created_by": {
-                    "id": "b01adf3a-72a1-4652-8532-5efc888460d3",
-                    "username": "roshni_rajput",
-                    "email": "roshnir.tagline@gmail.com",
-                    "first_name": "",
-                    "last_name": ""
-                },
-                "priority": "MEDIUM",
-                "status": "TODO",
-                "due_date": "2025-04-29T16:16:30+05:30",
-                "start_time": "2025-04-29T16:16:32+05:30",
-                "end_time": "2025-04-29T16:16:34+05:30",
-                "estimated_duration": "16:16:30",
-                "actual_duration": "12:16:30",
-                "created_at": "2025-04-29T16:17:06.543745+05:30"
-            },
-            {
-                "id": "2",
-                "title": "Design user interface",
-                "key": "PA-T2",
-                "description": "Create modern UI design for the application",
-                "assigned_to": {
-                    "id": "2",
-                    "username": "john_doe",
-                    "email": "john@example.com",
-                    "first_name": "John",
-                    "last_name": "Doe"
-                },
-                "priority": "HIGH",
-                "status": "IN_PROGRESS",
-                "due_date": "2025-05-05T16:16:30+05:30",
-                "created_at": "2025-04-28T10:17:06.543745+05:30"
-            },
-            {
-                "id": "3",
-                "title": "Fix login bug",
-                "key": "PA-T3",
-                "description": "Users cannot log in properly",
-                "assigned_to": {
-                    "id": "3",
-                    "username": "sarah_smith",
-                    "email": "sarah@example.com",
-                    "first_name": "Sarah",
-                    "last_name": "Smith"
-                },
-                "priority": "LOW",
-                "status": "DONE",
-                "due_date": "2025-04-30T12:16:30+05:30",
-                "created_at": "2025-04-27T14:17:06.543745+05:30"
-            }
-        ];
-
-        const members = [
-            {
-                "id": "7a4321fe-7aa3-499e-8b14-029eec1f1eee",
-                "username": "pratham_patel",
-                "email": "prathamp.tagline@gmail.com",
-                "first_name": "Pratham",
-                "last_name": "Patel"
-            },
-            {
-                "id": "b01adf3a-72a1-4652-8532-5efc888460d3",
-                "username": "roshni_rajput",
-                "email": "roshnir.tagline@gmail.com",
-                "first_name": "Roshni",
-                "last_name": "Rajput"
-            },
-            {
-                "id": "2",
-                "username": "john_doe",
-                "email": "john@example.com",
-                "first_name": "John",
-                "last_name": "Doe"
-            },
-            {
-                "id": "3",
-                "username": "sarah_smith",
-                "email": "sarah@example.com",
-                "first_name": "Sarah",
-                "last_name": "Smith"
-            },
-            {
-                "id": "4",
-                "username": "mike_johnson",
-                "email": "mike@example.com",
-                "first_name": "Mike",
-                "last_name": "Johnson"
-            }
-        ];
-
+        const CONFIG = {
+            BASE_API_URL: 'http://127.0.0.1:8000',
+            DEFAULT_ERROR_MESSAGE: 'An error occurred. Please try again later.'
+        };
+        
+        const AUTH = {
+            accessToken: localStorage.getItem("access_token"),
+            refreshToken: localStorage.getItem("refresh_token")
+        };
+        
+        const pathSegments = window.location.pathname.split('/');
+        const projectKey = pathSegments[pathSegments.length - 2] || 'NP';
+        
+        const API = {
+            project: `${CONFIG.BASE_API_URL}/projects/api/projects/${projectKey}`,
+            tasks: `${CONFIG.BASE_API_URL}/tasks/api/projects/${projectKey}/tasks/`,
+            createTask: `${CONFIG.BASE_API_URL}/tasks/api/projects/${projectKey}/tasks/`,
+            updateTask: (taskId) => `${CONFIG.BASE_API_URL}/tasks/api/projects/${projectKey}/tasks/${taskId}`,
+            deleteTask: (taskId) => `${CONFIG.BASE_API_URL}/tasks/api/projects/${projectKey}/tasks/${taskId}`,
+            searchUser: (pattern) => `${CONFIG.BASE_API_URL}/accounts/api/user/?email_pattern=${pattern}`,
+            members: `${CONFIG.BASE_API_URL}/projects/api/projects/${projectKey}/memberships/`,
+            availableMembers: `${CONFIG.BASE_API_URL}/projects/api/projects/${projectKey}/memberships/all/`,
+            addMember: `${CONFIG.BASE_API_URL}/projects/api/projects/${projectKey}/memberships/add/`,
+            removeMember: `${CONFIG.BASE_API_URL}/projects/api/projects/${projectKey}/memberships/remove/`,
+            deleteProject: `${CONFIG.BASE_API_URL}/projects/api/projects/${projectKey}`
+        };
+        
+        // Global variables
+        let tasks = [];
+        let members = [];
+        let projectDetails = {};
+        
         // DOM Elements
         const todoTasksContainer = document.getElementById('todoTasks');
         const inProgressTasksContainer = document.getElementById('inProgressTasks');
@@ -744,121 +665,214 @@
         const searchTasksInput = document.getElementById('searchTasks');
         const statusFilterSelect = document.getElementById('statusFilter');
         const priorityFilterSelect = document.getElementById('priorityFilter');
-
+        const projectTitleElement = document.querySelector('.project-title');
+        const projectKeyElement = document.querySelector('.project-key');
+        
         // Modals
         const taskDetailModal = document.getElementById('taskDetailModal');
         const addTaskModal = document.getElementById('addTaskModal');
         const addPeopleModal = document.getElementById('addPeopleModal');
         const viewMembersModal = document.getElementById('viewMembersModal');
-
-        // Close buttons
-        document.getElementById('closeTaskDetailModal').addEventListener('click', () => {
-            taskDetailModal.style.display = 'none';
-        });
-        document.getElementById('closeTaskDetailBtn').addEventListener('click', () => {
-            taskDetailModal.style.display = 'none';
-        });
-        document.getElementById('closeAddTaskModal').addEventListener('click', () => {
-            addTaskModal.style.display = 'none';
-        });
-        document.getElementById('cancelAddTaskBtn').addEventListener('click', () => {
-            addTaskModal.style.display = 'none';
-        });
-        document.getElementById('closeAddPeopleModal').addEventListener('click', () => {
-            addPeopleModal.style.display = 'none';
-        });
-        document.getElementById('closeAddPeopleBtn').addEventListener('click', () => {
-            addPeopleModal.style.display = 'none';
-        });
-        document.getElementById('closeViewMembersModal').addEventListener('click', () => {
-            viewMembersModal.style.display = 'none';
-        });
-        document.getElementById('closeViewMembersBtn').addEventListener('click', () => {
-            viewMembersModal.style.display = 'none';
-        });
-
-        // Action buttons
-        document.getElementById('addPeopleBtn').addEventListener('click', () => {
-            renderPeopleList(members);
-            addPeopleModal.style.display = 'block';
-        });
-
-        document.getElementById('viewMembersBtn').addEventListener('click', () => {
-            renderMembersList(members);
-            viewMembersModal.style.display = 'block';
-        });
-
-        document.getElementById('deleteProjectBtn').addEventListener('click', () => {
-            if (confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
-                alert('Project deleted successfully!');
-            }
-        });
-
-        // Add task buttons
-        document.getElementById('addTodoTaskBtn').addEventListener('click', () => {
-            document.getElementById('taskStatus').value = 'TODO';
-            addTaskModal.style.display = 'block';
-        });
-
-        document.getElementById('addInProgressTaskBtn').addEventListener('click', () => {
-            document.getElementById('taskStatus').value = 'IN_PROGRESS';
-            addTaskModal.style.display = 'block';
-        });
-
-        document.getElementById('addDoneTaskBtn').addEventListener('click', () => {
-            document.getElementById('taskStatus').value = 'DONE';
-            addTaskModal.style.display = 'block';
-        });
-
-        // Form submission
-        document.getElementById('addTaskForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const newTask = {
-                id: Date.now().toString(),
-                title: document.getElementById('taskTitle').value,
-                key: `PA-T${tasks.length + 1}`,
-                description: document.getElementById('taskDescription').value,
-                assigned_to: {
-                    id: Date.now().toString(),
-                    username: document.getElementById('taskAssignedTo').value.split('@')[0],
-                    email: document.getElementById('taskAssignedTo').value,
-                    first_name: "",
-                    last_name: ""
-                },
-                priority: document.getElementById('taskPriority').value,
-                status: document.getElementById('taskStatus').value,
-                due_date: document.getElementById('taskDueDate').value,
-                start_time: document.getElementById('taskStartTime').value,
-                end_time: document.getElementById('taskEndTime').value,
-                estimated_duration: document.getElementById('taskEstimatedDuration').value,
-                actual_duration: document.getElementById('taskActualDuration').value,
-                created_at: new Date().toISOString()
-            };
-            
-            tasks.push(newTask);
-            renderTasks();
-            addTaskModal.style.display = 'none';
-            document.getElementById('addTaskForm').reset();
-            
-            alert('Task created successfully!');
-        });
-
-        // Search and filter
-        searchTasksInput.addEventListener('input', renderTasks);
-        statusFilterSelect.addEventListener('change', renderTasks);
-        priorityFilterSelect.addEventListener('change', renderTasks);
         
-        document.getElementById('searchPeople').addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const filteredMembers = members.filter(member => 
-                member.username.toLowerCase().includes(searchTerm) ||
-                member.email.toLowerCase().includes(searchTerm) ||
-                member.first_name.toLowerCase().includes(searchTerm) ||
-                member.last_name.toLowerCase().includes(searchTerm)
-            );
-            renderPeopleList(filteredMembers);
-        });
+        // Helper function for API requests
+        async function makeRequest(url, method = 'GET', body = null) {
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${AUTH.accessToken}`
+            };
+        
+            const options = {
+                method,
+                headers
+            };
+        
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+        
+            try {
+                const response = await fetch(url, options);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Error making request:', error);
+                alert(CONFIG.DEFAULT_ERROR_MESSAGE);
+                throw error;
+            }
+        }
+        
+        // Initialize the application
+        async function init() {
+            try {
+                // Load project details
+                projectDetails = await makeRequest(API.project);
+                projectTitleElement.textContent = projectDetails.name || 'Project Management';
+                projectKeyElement.textContent = projectDetails.key || 'PM-001';
+        
+                // Load tasks
+                await loadTasks();
+        
+                // Load members
+                await loadMembers();
+        
+                // Set up event listeners
+                setupEventListeners();
+            } catch (error) {
+                console.error('Initialization error:', error);
+            }
+        }
+        
+        // Load tasks from API
+        async function loadTasks() {
+            try {
+                tasks = await makeRequest(API.tasks);
+                renderTasks();
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+            }
+        }
+        
+        // Load members from API
+        async function loadMembers() {
+            try {
+                members = await makeRequest(API.members);
+            } catch (error) {
+                console.error('Error loading members:', error);
+            }
+        }
+        
+        // Search users by email pattern
+        async function searchUsers(pattern) {
+            try {
+                const users = await makeRequest(API.searchUser(pattern));
+                return users;
+            } catch (error) {
+                console.error('Error searching users:', error);
+                return [];
+            }
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Close buttons
+            document.getElementById('closeTaskDetailModal').addEventListener('click', () => {
+                taskDetailModal.style.display = 'none';
+            });
+            document.getElementById('closeTaskDetailBtn').addEventListener('click', () => {
+                taskDetailModal.style.display = 'none';
+            });
+            document.getElementById('closeAddTaskModal').addEventListener('click', () => {
+                addTaskModal.style.display = 'none';
+            });
+            document.getElementById('cancelAddTaskBtn').addEventListener('click', () => {
+                addTaskModal.style.display = 'none';
+            });
+            document.getElementById('closeAddPeopleModal').addEventListener('click', () => {
+                addPeopleModal.style.display = 'none';
+            });
+            document.getElementById('closeAddPeopleBtn').addEventListener('click', () => {
+                addPeopleModal.style.display = 'none';
+            });
+            document.getElementById('closeViewMembersModal').addEventListener('click', () => {
+                viewMembersModal.style.display = 'none';
+            });
+            document.getElementById('closeViewMembersBtn').addEventListener('click', () => {
+                viewMembersModal.style.display = 'none';
+            });
+        
+            // Action buttons
+            document.getElementById('addPeopleBtn').addEventListener('click', async () => {
+                try {
+                    const availableMembers = await makeRequest(API.availableMembers);
+                    renderPeopleList(availableMembers);
+                    addPeopleModal.style.display = 'block';
+                } catch (error) {
+                    console.error('Error loading available members:', error);
+                }
+            });
+        
+            document.getElementById('viewMembersBtn').addEventListener('click', () => {
+                renderMembersList(members);
+                viewMembersModal.style.display = 'block';
+            });
+        
+            document.getElementById('deleteProjectBtn').addEventListener('click', async () => {
+                if (confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+                    try {
+                        await makeRequest(API.deleteProject, 'DELETE');
+                        alert('Project deleted successfully!');
+                        window.location.href = '/projects'; // Redirect to projects list
+                    } catch (error) {
+                        console.error('Error deleting project:', error);
+                    }
+                }
+            });
+        
+            // Add task buttons
+            document.getElementById('addTodoTaskBtn').addEventListener('click', () => {
+                document.getElementById('taskStatus').value = 'TODO';
+                addTaskModal.style.display = 'block';
+            });
+        
+            document.getElementById('addInProgressTaskBtn').addEventListener('click', () => {
+                document.getElementById('taskStatus').value = 'IN_PROGRESS';
+                addTaskModal.style.display = 'block';
+            });
+        
+            document.getElementById('addDoneTaskBtn').addEventListener('click', () => {
+                document.getElementById('taskStatus').value = 'DONE';
+                addTaskModal.style.display = 'block';
+            });
+        
+            // Form submission
+            document.getElementById('addTaskForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    title: document.getElementById('taskTitle').value,
+                    description: document.getElementById('taskDescription').value,
+                    priority: document.getElementById('taskPriority').value,
+                    status: document.getElementById('taskStatus').value,
+                    due_date: document.getElementById('taskDueDate').value,
+                    start_time: document.getElementById('taskStartTime').value,
+                    end_time: document.getElementById('taskEndTime').value,
+                    estimated_duration: document.getElementById('taskEstimatedDuration').value,
+                    actual_duration: document.getElementById('taskActualDuration').value,
+                    assigned_to: document.getElementById('taskAssignedTo').value
+                };
+                
+                try {
+                    await makeRequest(API.createTask, 'POST', formData);
+                    await loadTasks(); // Refresh tasks
+                    addTaskModal.style.display = 'none';
+                    document.getElementById('addTaskForm').reset();
+                    alert('Task created successfully!');
+                } catch (error) {
+                    console.error('Error creating task:', error);
+                }
+            });
+        
+            // Search and filter
+            searchTasksInput.addEventListener('input', renderTasks);
+            statusFilterSelect.addEventListener('change', renderTasks);
+            priorityFilterSelect.addEventListener('change', renderTasks);
+            
+            document.getElementById('searchPeople').addEventListener('input', async function() {
+                const searchTerm = this.value.toLowerCase();
+                if (searchTerm.length > 2) {
+                    try {
+                        const filteredMembers = await searchUsers(searchTerm);
+                        renderPeopleList(filteredMembers);
+                    } catch (error) {
+                        console.error('Error searching members:', error);
+                    }
+                }
+            });
+        }
         
         // Render tasks
         function renderTasks() {
@@ -872,7 +886,7 @@
             const statusFilter = statusFilterSelect.value;
             const priorityFilter = priorityFilterSelect.value;
             
-                            // Filter tasks
+            // Filter tasks
             const filteredTasks = tasks.filter(task => {
                 // Search filter
                 const matchesSearch = task.title.toLowerCase().includes(searchTerm) ||
@@ -1029,8 +1043,8 @@
             
             // Set up delete button
             document.getElementById('deleteTaskBtn').dataset.taskId = task.id;
-            document.getElementById('deleteTaskBtn').onclick = function() {
-                deleteTask(task.id);
+            document.getElementById('deleteTaskBtn').onclick = async function() {
+                await deleteTask(task.id);
             };
             
             // Show modal
@@ -1038,14 +1052,15 @@
         }
         
         // Delete task
-        function deleteTask(taskId) {
+        async function deleteTask(taskId) {
             if (confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
-                const taskIndex = tasks.findIndex(task => task.id === taskId);
-                if (taskIndex !== -1) {
-                    tasks.splice(taskIndex, 1);
-                    renderTasks();
+                try {
+                    await makeRequest(API.deleteTask(taskId), 'DELETE');
+                    await loadTasks(); // Refresh tasks
                     taskDetailModal.style.display = 'none';
                     alert('Task deleted successfully!');
+                } catch (error) {
+                    console.error('Error deleting task:', error);
                 }
             }
         }
@@ -1072,9 +1087,14 @@
                 
                 // Add click event for the Add button
                 const addButton = personItem.querySelector('.btn');
-                addButton.addEventListener('click', () => {
-                    // In a real app, you would call an API to add the person to the project
-                    alert(`Added ${person.first_name} ${person.last_name} to the project!`);
+                addButton.addEventListener('click', async () => {
+                    try {
+                        await makeRequest(API.addMember, 'POST', { user_id: person.id });
+                        await loadMembers(); // Refresh members list
+                        alert(`Added ${person.first_name} ${person.last_name} to the project!`);
+                    } catch (error) {
+                        console.error('Error adding member:', error);
+                    }
                 });
                 
                 peopleList.appendChild(personItem);
@@ -1103,10 +1123,15 @@
                 
                 // Add click event for the Remove button
                 const removeButton = memberItem.querySelector('.btn');
-                removeButton.addEventListener('click', () => {
-                    // In a real app, you would call an API to remove the member from the project
+                removeButton.addEventListener('click', async () => {
                     if (confirm(`Are you sure you want to remove ${member.first_name} ${member.last_name} from the project?`)) {
-                        alert(`Removed ${member.first_name} ${member.last_name} from the project!`);
+                        try {
+                            await makeRequest(API.removeMember, 'POST', { user_id: member.id });
+                            await loadMembers(); // Refresh members list
+                            alert(`Removed ${member.first_name} ${member.last_name} from the project!`);
+                        } catch (error) {
+                            console.error('Error removing member:', error);
+                        }
                     }
                 });
                 
@@ -1114,8 +1139,8 @@
             });
         }
         
-        // Initialize
-        renderTasks();
+        // Initialize the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>

@@ -296,3 +296,5 @@ def all_project_view(request):
 
 def temp(request):
     return HttpResponse("hellow")
+
+    vagheladivyesh@gmail.com
