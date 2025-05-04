@@ -70,6 +70,9 @@ class UsersDataViaEmailAndPattern(generics.ListCreateAPIView):
         
         if email_pattern:
             return User.objects.filter(email__icontains=email_pattern)
+        
+
+        
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 

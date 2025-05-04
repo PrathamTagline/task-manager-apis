@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add People Modal</title>
+  <style>
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      padding-top: 60px;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 400px;
+      border-radius: 8px;
+    }
+
+    .close {
+      float: right;
+      font-size: 28px;
+      cursor: pointer;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px;
+    }
+
+    .user-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .btn {
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .btn-light {
+      background: #f1f1f1;
+      border: 1px solid #ccc;
+    }
+
+    .btn-primary {
+      background-color: #007bff;
+      color: white;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Trigger -->
+<button onclick="openAddPeopleModal()">Open Add People Modal</button>
+
+<!-- Modal -->
+<div class="modal" id="addPeopleModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeAddPeopleModal()">&times;</span>
+    <h2>Add People to Project</h2>
+    <div class="form-group">
+      <input type="text" id="searchPeople" class="form-control" placeholder="Search by email..." />
+    </div>
+    <div id="peopleList"></div>
+    <div style="text-align: right; margin-top: 20px;">
+      <button class="btn btn-light" onclick="closeAddPeopleModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // CONFIG and AUTH
+  const CONFIG = {
+    BASE_API_URL: 'http://127.0.0.1:8000',
+    DEFAULT_ERROR_MESSAGE: 'An error occurred. Please try again later.'
+  };
+
+  const AUTH = {
+    accessToken: localStorage.getItem("access_token"),
+    refreshToken: localStorage.getItem("refresh_token")
+  };
+
+  const projectKey = 'PA'; // your dynamic project key
+  const searchUserURL = (pattern) => `${CONFIG.BASE_API_URL}/accounts/api/user/search/?email_pattern=${pattern}`;
+  const addMemberURL = `${CONFIG.BASE_API_URL}/projects/api/projects/${projectKey}/memberships/add/`;
+
+  // Modal Control
+  function openAddPeopleModal() {
+    document.getElementById("addPeopleModal").style.display = "block";
+  }
+
+  function closeAddPeopleModal() {
+    document.getElementById("addPeopleModal").style.display = "none";
+    document.getElementById("searchPeople").value = '';
+    document.getElementById("peopleList").innerHTML = '';
+  }
+
+  // Live Search
+  document.getElementById("searchPeople").addEventListener("input", async function () {
+    const query = this.value.trim();
+    const list = document.getElementById("peopleList");
+
+    if (query.length < 2) {
+      list.innerHTML = '';
+      return;
+    }
+
+    try {
+      const res = await fetch(searchUserURL(query), {
+        headers: {
+          'Authorization': `Bearer ${AUTH.accessToken}`
+        }
+      });
+
+      if (!res.ok) throw new Error('Search failed');
+
+      const users = await res.json();
+      list.innerHTML = '';
+
+      users.forEach(user => {
+        const div = document.createElement("div");
+        div.classList.add("user-item");
+        div.innerHTML = `
+          <span>${user.name} (${user.email})</span>
+          <button class="btn btn-primary add-user-btn" data-email="${user.email}">Add</button>
+        `;
+        list.appendChild(div);
+      });
+
+    } catch (err) {
+      list.innerHTML = `<p style="color:red;">${CONFIG.DEFAULT_ERROR_MESSAGE}</p>`;
+    }
+  });
+
+  // Add Member
+  document.getElementById("peopleList").addEventListener("click", async function (e) {
+    if (e.target.classList.contains("add-user-btn")) {
+      const email = e.target.dataset.email;
+      const role = 'DESIGNER';
+      const button = e.target;
+
+      try {
+        const res = await fetch(addMemberURL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${AUTH.accessToken}`
+          },
+          body: JSON.stringify({ email,role })
+        });
+
+        if (!res.ok) {
+          const error = await res.json();
+    
+          return;
+        }
+
+        button.disabled = true;
+        button.textContent = "Added";
+        alert(`User ${email} added successfully.`);
+
+      } catch (err) {
+
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

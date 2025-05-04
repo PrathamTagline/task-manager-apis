@@ -294,7 +294,5 @@ def all_project_view(request):
     return render(request,"projects/all_projects_page.html")
 
 
-def temp(request):
-    return HttpResponse("hellow")
-
-    vagheladivyesh@gmail.com
+def test(request):
+   return render(request,"projects/test.html")

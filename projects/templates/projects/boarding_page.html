@@ -439,6 +439,64 @@
                 flex-direction: column;
             }
         }
+        /* Add to your stylesheet */
+.member-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .member-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #4a6fa5;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+  
+  .member-name {
+    font-weight: 500;
+  }
+  
+  .member-email {
+    color: #666;
+    font-size: 0.9em;
+  }
+  
+  .loading, .no-results, .error {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+  }
+  
+  .btn .spinner {
+    display: none;
+  }
+  
+  .btn .spinner.hidden {
+    display: none;
+  }
+  
+  .btn .btn-text.hidden {
+    display: none;
+  }
+  
+  .btn .spinner:not(.hidden) {
+    display: inline-block;
+    /* Add your spinner styling here */
+  }
     </style>
     <link rel="stylesheet" href="{% static 'css/dashboard_page.css' %}">
 </head>
@@ -640,17 +698,19 @@
         const projectKey = pathSegments[pathSegments.length - 2] || 'NP';
         
         const API = {
-            project: `${CONFIG.BASE_API_URL}/projects/api/projects/${projectKey}`,
+            project: `${CONFIG.BASE_API_URL}/projects/api/projects/${projectKey}/`,
             tasks: `${CONFIG.BASE_API_URL}/tasks/api/projects/${projectKey}/tasks/`,
             createTask: `${CONFIG.BASE_API_URL}/tasks/api/projects/${projectKey}/tasks/`,
-            updateTask: (taskId) => `${CONFIG.BASE_API_URL}/tasks/api/projects/${projectKey}/tasks/${taskId}`,
-            deleteTask: (taskId) => `${CONFIG.BASE_API_URL}/tasks/api/projects/${projectKey}/tasks/${taskId}`,
+            updateTask: (taskId) => `${CONFIG.BASE_API_URL}/tasks/api/projects/${projectKey}/tasks/${taskId}/`,
+            deleteTask: (taskKey) => `${CONFIG.BASE_API_URL}/tasks/api/projects/${projectKey}/tasks/${taskKey}/`,
+            
             searchUser: (pattern) => `${CONFIG.BASE_API_URL}/accounts/api/user/?email_pattern=${pattern}`,
-            members: `${CONFIG.BASE_API_URL}/projects/api/projects/${projectKey}/memberships/`,
+        
+            members: `${CONFIG.BASE_API_URL}/projects/api/projects/${projectKey}/memberships/all`,
             availableMembers: `${CONFIG.BASE_API_URL}/projects/api/projects/${projectKey}/memberships/all/`,
             addMember: `${CONFIG.BASE_API_URL}/projects/api/projects/${projectKey}/memberships/add/`,
-            removeMember: `${CONFIG.BASE_API_URL}/projects/api/projects/${projectKey}/memberships/remove/`,
-            deleteProject: `${CONFIG.BASE_API_URL}/projects/api/projects/${projectKey}`
+            removeMember: (email) => `${CONFIG.BASE_API_URL}/projects/api/projects/${projectKey}/memberships/remove/?email=${email}`,
+            deleteProject: `${CONFIG.BASE_API_URL}/projects/api/projects/${projectKey}/`
         };
         
         // Global variables
@@ -674,6 +734,25 @@
         const addPeopleModal = document.getElementById('addPeopleModal');
         const viewMembersModal = document.getElementById('viewMembersModal');
         
+        // Toast notification function
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+        
         // Helper function for API requests
         async function makeRequest(url, method = 'GET', body = null) {
             const headers = {
@@ -694,13 +773,16 @@
                 const response = await fetch(url, options);
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    const errorData = await response.json().catch(() => ({}));
+                    const errorMessage = errorData.message || `HTTP error! status: ${response.status}`;
+                    console.error('API request failed:', errorMessage);
+                    throw new Error(errorMessage);
                 }
                 
                 return await response.json();
             } catch (error) {
-                console.error('Error making request:', error);
-                alert(CONFIG.DEFAULT_ERROR_MESSAGE);
+                console.error('Request error:', error.message);
+                alert(error.message || CONFIG.DEFAULT_ERROR_MESSAGE);
                 throw error;
             }
         }
@@ -723,37 +805,397 @@
                 setupEventListeners();
             } catch (error) {
                 console.error('Initialization error:', error);
+                alert('Failed to initialize the application: ' + error.message);
             }
         }
         
         // Load tasks from API
         async function loadTasks() {
             try {
-                tasks = await makeRequest(API.tasks);
+                const response = await makeRequest(API.tasks);
+                tasks = response.results || response;
                 renderTasks();
+                console.log(`Loaded ${tasks.length} tasks`);
             } catch (error) {
                 console.error('Error loading tasks:', error);
+                alert('Failed to load tasks: ' + error.message);
             }
         }
         
         // Load members from API
         async function loadMembers() {
             try {
-                members = await makeRequest(API.members);
+                const response = await makeRequest(API.members);
+                members = response.results || response;
+                console.log(`Loaded ${members.length} members`);
             } catch (error) {
                 console.error('Error loading members:', error);
+                try {
+                    const availableResponse = await makeRequest(API.availableMembers);
+                    members = availableResponse.results || availableResponse;
+                    console.log(`Loaded ${members.length} available members (fallback)`);
+                } catch (fallbackError) {
+                    console.error('Error loading available members (fallback):', fallbackError);
+                    alert('Failed to load project members: ' + error.message);
+                }
             }
         }
         
-        // Search users by email pattern
+        // Search users by email pattern and render results
+        async function handleUserSearch() {
+            const searchInput = document.getElementById('searchPeople');
+            const searchTerm = searchInput.value.trim();
+            const peopleList = document.getElementById('peopleList');
+            
+            if (searchTerm.length < 3) {
+                // Don't search for very short terms
+                peopleList.innerHTML = '<div class="no-results">Enter at least 3 characters to search</div>';
+                return;
+            }
+        
+            try {
+                // Show loading state
+                peopleList.innerHTML = '<div class="loading">Searching users...</div>';
+                
+                // Search for users matching the email pattern
+                const matchingUsers = await searchUsers(searchTerm);
+                
+                // Render the results
+                renderPeopleList(matchingUsers);
+                
+                // Log success message to console
+                console.log(`Found ${matchingUsers.length} users matching "${searchTerm}"`);
+                
+            } catch (error) {
+                peopleList.innerHTML = '<div class="error">Failed to search users. Please try again.</div>';
+                alert('Failed to search users: ' + (error.message || 'Unknown error'));
+            }
+        }
+        
+        // Search users API call
         async function searchUsers(pattern) {
             try {
-                const users = await makeRequest(API.searchUser(pattern));
-                return users;
+                const response = await makeRequest(API.searchUser(pattern));
+                return response.results || response; // Handle both paginated and non-paginated responses
             } catch (error) {
-                console.error('Error searching users:', error);
-                return [];
+                console.error('API error when searching users:', error);
+                throw error; // Re-throw to handle in the calling function
             }
+        }
+        
+        // Delete task using task key
+        async function deleteTask(taskKey) {
+            if (confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
+                try {
+                    await makeRequest(API.deleteTask(taskKey), 'DELETE');
+                    await loadTasks();
+                    taskDetailModal.style.display = 'none';
+                    showToast(`Task ${taskKey} deleted successfully`);
+                    console.log(`Task deleted: ${taskKey}`);
+                } catch (error) {
+                    console.error('Error deleting task:', error);
+                    alert('Failed to delete task: ' + error.message);
+                }
+            }
+        }
+        
+        // Delete project and redirect to dashboard
+        async function deleteProject() {
+            if (confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+                try {
+                    await makeRequest(API.deleteProject, 'DELETE');
+                    showToast('Project deleted successfully');
+                    console.log(`Project deleted: ${projectKey}`);
+                    window.location.href = '/dashboard/'; // Redirect to dashboard
+                } catch (error) {
+                    console.error('Error deleting project:', error);
+                    alert('Failed to delete project: ' + error.message);
+                }
+            }
+        }
+        
+        // Add member to project using email
+        async function addMember(email) {
+            try {
+                const response = await makeRequest(API.addMember, 'POST', { email });
+                
+                // Refresh members list after adding
+                await loadMembers();
+                
+                // Show success feedback
+                showToast(`${email} was added to the project`);
+                console.log(`Member added: ${email}`);
+                
+                return response;
+            } catch (error) {
+                console.error('Error adding member:', error);
+                alert('Failed to add member: ' + error.message);
+                throw error;
+            }
+        }
+        
+        // Helper function to debounce rapid input
+        function debounce(func, delay) {
+            let timeout;
+            return function() {
+                const context = this;
+                const args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), delay);
+            };
+        }
+        
+        // Remove member from project using email
+        async function removeMember(email) {
+            try {
+                await makeRequest(API.removeMember(email), 'DELETE');
+                await loadMembers();
+                showToast(`${email} was removed from the project`);
+                console.log(`Member removed: ${email}`);
+            } catch (error) {
+                console.error('Error removing member:', error);
+                alert('Failed to remove member: ' + error.message);
+            }
+        }
+        
+        // Render tasks
+        function renderTasks() {
+            todoTasksContainer.innerHTML = '';
+            inProgressTasksContainer.innerHTML = '';
+            doneTasksContainer.innerHTML = '';
+            
+            const searchTerm = searchTasksInput.value.toLowerCase();
+            const statusFilter = statusFilterSelect.value;
+            const priorityFilter = priorityFilterSelect.value;
+            
+            const filteredTasks = tasks.filter(task => {
+                const matchesSearch = task.title.toLowerCase().includes(searchTerm) ||
+                                      task.key.toLowerCase().includes(searchTerm) ||
+                                      (task.description && task.description.toLowerCase().includes(searchTerm));
+                const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
+                const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
+                return matchesSearch && matchesStatus && matchesPriority;
+            });
+            
+            console.log(`Rendering ${filteredTasks.length} tasks after filtering`);
+            
+            filteredTasks.forEach(task => {
+                const taskCard = createTaskCard(task);
+                
+                if (task.status === 'TODO') {
+                    todoTasksContainer.appendChild(taskCard);
+                } else if (task.status === 'IN_PROGRESS') {
+                    inProgressTasksContainer.appendChild(taskCard);
+                } else if (task.status === 'DONE') {
+                    doneTasksContainer.appendChild(taskCard);
+                }
+            });
+        }
+        
+        // Create task card
+        function createTaskCard(task) {
+            const taskCard = document.createElement('div');
+            taskCard.className = 'task-card';
+            taskCard.dataset.taskKey = task.key;
+            
+            let priorityClass = '';
+            switch (task.priority) {
+                case 'HIGH': priorityClass = 'priority-high'; break;
+                case 'MEDIUM': priorityClass = 'priority-medium'; break;
+                case 'LOW': priorityClass = 'priority-low'; break;
+            }
+            
+            let userInitials = '';
+            if (task.assigned_to) {
+                if (task.assigned_to.first_name && task.assigned_to.last_name) {
+                    userInitials = `${task.assigned_to.first_name.charAt(0)}${task.assigned_to.last_name.charAt(0)}`;
+                } else {
+                    userInitials = task.assigned_to.username.substring(0, 2).toUpperCase();
+                }
+            }
+            
+            taskCard.innerHTML = `
+                <div class="task-header">
+                    <h4 class="task-title">${task.title}</h4>
+                    <span class="task-key">${task.key}</span>
+                </div>
+                <div class="task-footer">
+                    <div class="assigned-to">
+                        <div class="avatar">${userInitials}</div>
+                        <span>${task.assigned_to ? task.assigned_to.username : 'Unassigned'}</span>
+                    </div>
+                    <span class="priority ${priorityClass}">${task.priority}</span>
+                </div>
+            `;
+            
+            taskCard.addEventListener('click', () => showTaskDetails(task));
+            return taskCard;
+        }
+        
+        // Show task details
+        function showTaskDetails(task) {
+            const taskDetailContent = document.getElementById('taskDetailContent');
+            
+            const dueDate = new Date(task.due_date).toLocaleString();
+            const startTime = task.start_time ? new Date(task.start_time).toLocaleString() : 'Not set';
+            const endTime = task.end_time ? new Date(task.end_time).toLocaleString() : 'Not set';
+            const createdAt = new Date(task.created_at).toLocaleString();
+            
+            let statusBadge = '';
+            switch (task.status) {
+                case 'TODO': statusBadge = '<span class="badge badge-todo">To Do</span>'; break;
+                case 'IN_PROGRESS': statusBadge = '<span class="badge badge-progress">In Progress</span>'; break;
+                case 'DONE': statusBadge = '<span class="badge badge-done">Done</span>'; break;
+            }
+            
+            let priorityClass = '';
+            switch (task.priority) {
+                case 'HIGH': priorityClass = 'priority-high'; break;
+                case 'MEDIUM': priorityClass = 'priority-medium'; break;
+                case 'LOW': priorityClass = 'priority-low'; break;
+            }
+            
+            taskDetailContent.innerHTML = `
+                <h3>${task.title} <span class="task-key">${task.key}</span></h3>
+                <div class="task-details">
+                    <div class="detail-label">Status:</div>
+                    <div>${statusBadge}</div>
+                    <div class="detail-label">Priority:</div>
+                    <div><span class="priority ${priorityClass}">${task.priority}</span></div>
+                    <div class="detail-label">Assigned to:</div>
+                    <div>${task.assigned_to ? `${task.assigned_to.first_name} ${task.assigned_to.last_name} (${task.assigned_to.email})` : 'Unassigned'}</div>
+                    <div class="detail-label">Due date:</div>
+                    <div>${dueDate}</div>
+                    <div class="detail-label">Start time:</div>
+                    <div>${startTime}</div>
+                    <div class="detail-label">End time:</div>
+                    <div>${endTime}</div>
+                    <div class="detail-label">Est. duration:</div>
+                    <div>${task.estimated_duration || 'Not set'}</div>
+                    <div class="detail-label">Act. duration:</div>
+                    <div>${task.actual_duration || 'Not set'}</div>
+                    <div class="detail-label">Created at:</div>
+                    <div>${createdAt}</div>
+                </div>
+                <div class="detail-label">Description:</div>
+                <div class="task-description">${task.description || 'No description provided.'}</div>
+            `;
+            
+            document.getElementById('deleteTaskBtn').dataset.taskKey = task.key;
+            document.getElementById('deleteTaskBtn').onclick = async function() {
+                await deleteTask(task.key);
+            };
+            
+            taskDetailModal.style.display = 'block';
+            console.log(`Showing details for task: ${task.key}`);
+        }
+        
+        // Render members list
+        function renderMembersList(membersArray) {
+            const membersList = document.getElementById('membersList');
+            membersList.innerHTML = '';
+            
+            if (!membersArray || membersArray.length === 0) {
+                membersList.innerHTML = '<div class="no-results">No members found for this project</div>';
+                console.log('No members found for this project');
+                return;
+            }
+            
+            console.log(`Rendering ${membersArray.length} project members`);
+            
+            membersArray.forEach(member => {
+                const memberItem = document.createElement('div');
+                memberItem.className = 'member-item';
+                const email = member.user?.email || member.email;
+                
+                memberItem.innerHTML = `
+                    <div class="member-info">
+                        <div class="avatar">${member.user?.first_name?.charAt(0) || ''}${member.user?.last_name?.charAt(0) || ''}</div>
+                        <div>
+                            <div class="member-name">${member.user?.first_name || ''} ${member.user?.last_name || ''}</div>
+                            <div class="member-email">${email}</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-danger" data-email="${email}">Remove</button>
+                `;
+                
+                const removeButton = memberItem.querySelector('.btn');
+                removeButton.addEventListener('click', async () => {
+                    if (confirm(`Are you sure you want to remove ${member.user?.first_name || ''} ${member.user?.last_name || ''} from the project?`)) {
+                        await removeMember(email);
+                        memberItem.remove();
+                    }
+                });
+                
+                membersList.appendChild(memberItem);
+            });
+        }
+        
+        // Render the list of matching users
+        function renderPeopleList(peopleArray) {
+            const peopleList = document.getElementById('peopleList');
+            peopleList.innerHTML = '';
+            
+            if (!peopleArray || peopleArray.length === 0) {
+                peopleList.innerHTML = '<div class="no-results">No matching users found</div>';
+                console.log('No users found in search results');
+                return;
+            }
+            
+            console.log(`Rendering ${peopleArray.length} matching users`);
+        
+            peopleArray.forEach(person => {
+                const personItem = document.createElement('div');
+                personItem.className = 'member-item';
+                const email = person.email;
+                const firstName = person.first_name || '';
+                const lastName = person.last_name || '';
+                
+                // Create avatar from initials
+                const avatar = `${firstName.charAt(0)}${lastName.charAt(0)}` || 
+                              (email ? email.substring(0, 2).toUpperCase() : '??');
+                
+                personItem.innerHTML = `
+                    <div class="member-info">
+                        <div class="avatar">${avatar}</div>
+                        <div>
+                            <div class="member-name">${firstName} ${lastName}</div>
+                            <div class="member-email">${email}</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" data-email="${email}">
+                        <span class="btn-text">Add</span>
+                        <span class="spinner hidden"></span>
+                    </button>
+                `;
+                
+                const addButton = personItem.querySelector('.btn');
+                addButton.addEventListener('click', async () => {
+                    try {
+                        // Show loading state on button
+                        addButton.disabled = true;
+                        addButton.querySelector('.btn-text').classList.add('hidden');
+                        addButton.querySelector('.spinner').classList.remove('hidden');
+                        
+                        // Add the member
+                        await addMember(email);
+                        
+                        // Remove from list on success
+                        personItem.remove();
+                        console.log(`Added member: ${email}`);
+                        
+                    } catch (error) {
+                        console.error(`Failed to add member ${email}:`, error);
+                        // Reset button state on error
+                        addButton.disabled = false;
+                        addButton.querySelector('.btn-text').classList.remove('hidden');
+                        addButton.querySelector('.spinner').classList.add('hidden');
+                        alert(`Failed to add ${email}: ` + error.message);
+                    }
+                });
+                
+                peopleList.appendChild(personItem);
+            });
         }
         
         // Set up event listeners
@@ -785,30 +1227,20 @@
             });
         
             // Action buttons
-            document.getElementById('addPeopleBtn').addEventListener('click', async () => {
-                try {
-                    const availableMembers = await makeRequest(API.availableMembers);
-                    renderPeopleList(availableMembers);
-                    addPeopleModal.style.display = 'block';
-                } catch (error) {
-                    console.error('Error loading available members:', error);
-                }
-            });
-        
+            document.getElementById('deleteProjectBtn').addEventListener('click', deleteProject);
             document.getElementById('viewMembersBtn').addEventListener('click', () => {
                 renderMembersList(members);
                 viewMembersModal.style.display = 'block';
             });
-        
-            document.getElementById('deleteProjectBtn').addEventListener('click', async () => {
-                if (confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
-                    try {
-                        await makeRequest(API.deleteProject, 'DELETE');
-                        alert('Project deleted successfully!');
-                        window.location.href = '/projects'; // Redirect to projects list
-                    } catch (error) {
-                        console.error('Error deleting project:', error);
-                    }
+            document.getElementById('addPeopleBtn').addEventListener('click', async () => {
+                try {
+                    const availableMembers = await makeRequest(API.availableMembers);
+                    renderPeopleList(availableMembers.results || availableMembers);
+                    addPeopleModal.style.display = 'block';
+                    console.log('Opened add people modal');
+                } catch (error) {
+                    console.error('Error loading available members:', error);
+                    alert('Failed to load available members: ' + error.message);
                 }
             });
         
@@ -817,12 +1249,10 @@
                 document.getElementById('taskStatus').value = 'TODO';
                 addTaskModal.style.display = 'block';
             });
-        
             document.getElementById('addInProgressTaskBtn').addEventListener('click', () => {
                 document.getElementById('taskStatus').value = 'IN_PROGRESS';
                 addTaskModal.style.display = 'block';
             });
-        
             document.getElementById('addDoneTaskBtn').addEventListener('click', () => {
                 document.getElementById('taskStatus').value = 'DONE';
                 addTaskModal.style.display = 'block';
@@ -847,12 +1277,14 @@
                 
                 try {
                     await makeRequest(API.createTask, 'POST', formData);
-                    await loadTasks(); // Refresh tasks
+                    await loadTasks();
                     addTaskModal.style.display = 'none';
                     document.getElementById('addTaskForm').reset();
-                    alert('Task created successfully!');
+                    showToast('Task created successfully');
+                    console.log('New task created:', formData.title);
                 } catch (error) {
                     console.error('Error creating task:', error);
+                    alert('Failed to create task: ' + error.message);
                 }
             });
         
@@ -861,282 +1293,8 @@
             statusFilterSelect.addEventListener('change', renderTasks);
             priorityFilterSelect.addEventListener('change', renderTasks);
             
-            document.getElementById('searchPeople').addEventListener('input', async function() {
-                const searchTerm = this.value.toLowerCase();
-                if (searchTerm.length > 2) {
-                    try {
-                        const filteredMembers = await searchUsers(searchTerm);
-                        renderPeopleList(filteredMembers);
-                    } catch (error) {
-                        console.error('Error searching members:', error);
-                    }
-                }
-            });
-        }
-        
-        // Render tasks
-        function renderTasks() {
-            // Clear containers
-            todoTasksContainer.innerHTML = '';
-            inProgressTasksContainer.innerHTML = '';
-            doneTasksContainer.innerHTML = '';
-            
-            // Get filter values
-            const searchTerm = searchTasksInput.value.toLowerCase();
-            const statusFilter = statusFilterSelect.value;
-            const priorityFilter = priorityFilterSelect.value;
-            
-            // Filter tasks
-            const filteredTasks = tasks.filter(task => {
-                // Search filter
-                const matchesSearch = task.title.toLowerCase().includes(searchTerm) ||
-                                      task.key.toLowerCase().includes(searchTerm) ||
-                                      (task.description && task.description.toLowerCase().includes(searchTerm));
-                
-                // Status filter
-                const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
-                
-                // Priority filter
-                const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
-                
-                return matchesSearch && matchesStatus && matchesPriority;
-            });
-            
-            // Render filtered tasks
-            filteredTasks.forEach(task => {
-                const taskCard = createTaskCard(task);
-                
-                if (task.status === 'TODO') {
-                    todoTasksContainer.appendChild(taskCard);
-                } else if (task.status === 'IN_PROGRESS') {
-                    inProgressTasksContainer.appendChild(taskCard);
-                } else if (task.status === 'DONE') {
-                    doneTasksContainer.appendChild(taskCard);
-                }
-            });
-        }
-        
-        // Create task card
-        function createTaskCard(task) {
-            const taskCard = document.createElement('div');
-            taskCard.className = 'task-card';
-            taskCard.dataset.taskId = task.id;
-            
-            // Priority class
-            let priorityClass = '';
-            switch (task.priority) {
-                case 'HIGH':
-                    priorityClass = 'priority-high';
-                    break;
-                case 'MEDIUM':
-                    priorityClass = 'priority-medium';
-                    break;
-                case 'LOW':
-                    priorityClass = 'priority-low';
-                    break;
-            }
-            
-            // User initials
-            let userInitials = '';
-            if (task.assigned_to) {
-                if (task.assigned_to.first_name && task.assigned_to.last_name) {
-                    userInitials = `${task.assigned_to.first_name.charAt(0)}${task.assigned_to.last_name.charAt(0)}`;
-                } else {
-                    userInitials = task.assigned_to.username.substring(0, 2).toUpperCase();
-                }
-            }
-            
-            taskCard.innerHTML = `
-                <div class="task-header">
-                    <h4 class="task-title">${task.title}</h4>
-                    <span class="task-key">${task.key}</span>
-                </div>
-                <div class="task-footer">
-                    <div class="assigned-to">
-                        <div class="avatar">${userInitials}</div>
-                        <span>${task.assigned_to ? task.assigned_to.username : 'Unassigned'}</span>
-                    </div>
-                    <span class="priority ${priorityClass}">${task.priority}</span>
-                </div>
-            `;
-            
-            // Add click event to show task details
-            taskCard.addEventListener('click', () => {
-                showTaskDetails(task);
-            });
-            
-            return taskCard;
-        }
-        
-        // Show task details
-        function showTaskDetails(task) {
-            const taskDetailContent = document.getElementById('taskDetailContent');
-            
-            // Format dates
-            const dueDate = new Date(task.due_date).toLocaleString();
-            const startTime = task.start_time ? new Date(task.start_time).toLocaleString() : 'Not set';
-            const endTime = task.end_time ? new Date(task.end_time).toLocaleString() : 'Not set';
-            const createdAt = new Date(task.created_at).toLocaleString();
-            
-            // Status badge
-            let statusBadge = '';
-            switch (task.status) {
-                case 'TODO':
-                    statusBadge = '<span class="badge badge-todo">To Do</span>';
-                    break;
-                case 'IN_PROGRESS':
-                    statusBadge = '<span class="badge badge-progress">In Progress</span>';
-                    break;
-                case 'DONE':
-                    statusBadge = '<span class="badge badge-done">Done</span>';
-                    break;
-            }
-            
-            // Priority badge
-            let priorityClass = '';
-            switch (task.priority) {
-                case 'HIGH':
-                    priorityClass = 'priority-high';
-                    break;
-                case 'MEDIUM':
-                    priorityClass = 'priority-medium';
-                    break;
-                case 'LOW':
-                    priorityClass = 'priority-low';
-                    break;
-            }
-            
-            taskDetailContent.innerHTML = `
-                <h3>${task.title} <span class="task-key">${task.key}</span></h3>
-                <div class="task-details">
-                    <div class="detail-label">Status:</div>
-                    <div>${statusBadge}</div>
-                    
-                    <div class="detail-label">Priority:</div>
-                    <div><span class="priority ${priorityClass}">${task.priority}</span></div>
-                    
-                    <div class="detail-label">Assigned to:</div>
-                    <div>${task.assigned_to ? `${task.assigned_to.first_name} ${task.assigned_to.last_name} (${task.assigned_to.email})` : 'Unassigned'}</div>
-                    
-                    <div class="detail-label">Due date:</div>
-                    <div>${dueDate}</div>
-                    
-                    <div class="detail-label">Start time:</div>
-                    <div>${startTime}</div>
-                    
-                    <div class="detail-label">End time:</div>
-                    <div>${endTime}</div>
-                    
-                    <div class="detail-label">Est. duration:</div>
-                    <div>${task.estimated_duration || 'Not set'}</div>
-                    
-                    <div class="detail-label">Act. duration:</div>
-                    <div>${task.actual_duration || 'Not set'}</div>
-                    
-                    <div class="detail-label">Created at:</div>
-                    <div>${createdAt}</div>
-                </div>
-                
-                <div class="detail-label">Description:</div>
-                <div class="task-description">${task.description || 'No description provided.'}</div>
-            `;
-            
-            // Set up delete button
-            document.getElementById('deleteTaskBtn').dataset.taskId = task.id;
-            document.getElementById('deleteTaskBtn').onclick = async function() {
-                await deleteTask(task.id);
-            };
-            
-            // Show modal
-            taskDetailModal.style.display = 'block';
-        }
-        
-        // Delete task
-        async function deleteTask(taskId) {
-            if (confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
-                try {
-                    await makeRequest(API.deleteTask(taskId), 'DELETE');
-                    await loadTasks(); // Refresh tasks
-                    taskDetailModal.style.display = 'none';
-                    alert('Task deleted successfully!');
-                } catch (error) {
-                    console.error('Error deleting task:', error);
-                }
-            }
-        }
-        
-        // Render people list
-        function renderPeopleList(peopleArray) {
-            const peopleList = document.getElementById('peopleList');
-            peopleList.innerHTML = '';
-            
-            peopleArray.forEach(person => {
-                const personItem = document.createElement('div');
-                personItem.className = 'member-item';
-                
-                personItem.innerHTML = `
-                    <div class="member-info">
-                        <div class="avatar">${person.first_name ? person.first_name.charAt(0) : ''}${person.last_name ? person.last_name.charAt(0) : ''}</div>
-                        <div>
-                            <div class="member-name">${person.first_name} ${person.last_name}</div>
-                            <div class="member-email">${person.email}</div>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary">Add</button>
-                `;
-                
-                // Add click event for the Add button
-                const addButton = personItem.querySelector('.btn');
-                addButton.addEventListener('click', async () => {
-                    try {
-                        await makeRequest(API.addMember, 'POST', { user_id: person.id });
-                        await loadMembers(); // Refresh members list
-                        alert(`Added ${person.first_name} ${person.last_name} to the project!`);
-                    } catch (error) {
-                        console.error('Error adding member:', error);
-                    }
-                });
-                
-                peopleList.appendChild(personItem);
-            });
-        }
-        
-        // Render members list
-        function renderMembersList(membersArray) {
-            const membersList = document.getElementById('membersList');
-            membersList.innerHTML = '';
-            
-            membersArray.forEach(member => {
-                const memberItem = document.createElement('div');
-                memberItem.className = 'member-item';
-                
-                memberItem.innerHTML = `
-                    <div class="member-info">
-                        <div class="avatar">${member.first_name ? member.first_name.charAt(0) : ''}${member.last_name ? member.last_name.charAt(0) : ''}</div>
-                        <div>
-                            <div class="member-name">${member.first_name} ${member.last_name}</div>
-                            <div class="member-email">${member.email}</div>
-                        </div>
-                    </div>
-                    <button class="btn btn-danger">Remove</button>
-                `;
-                
-                // Add click event for the Remove button
-                const removeButton = memberItem.querySelector('.btn');
-                removeButton.addEventListener('click', async () => {
-                    if (confirm(`Are you sure you want to remove ${member.first_name} ${member.last_name} from the project?`)) {
-                        try {
-                            await makeRequest(API.removeMember, 'POST', { user_id: member.id });
-                            await loadMembers(); // Refresh members list
-                            alert(`Removed ${member.first_name} ${member.last_name} from the project!`);
-                        } catch (error) {
-                            console.error('Error removing member:', error);
-                        }
-                    }
-                });
-                
-                membersList.appendChild(memberItem);
-            });
+            // Set up people search with debounce
+            document.getElementById('searchPeople').addEventListener('input', debounce(handleUserSearch, 300));
         }
         
         // Initialize the application when DOM is loaded
