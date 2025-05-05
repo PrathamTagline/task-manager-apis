@@ -181,7 +181,24 @@ class ProjectViewSet(viewsets.ModelViewSet):
         if role not in dict(ProjectMembership.ROLE_CHOICES):
             return Response({"detail": "Invalid role."}, status=status.HTTP_400_BAD_REQUEST)
 
-        ProjectMembership.objects.create(project=project, user=user, role=role)
+        # Create the new membership
+        membership = ProjectMembership.objects.create(project=project, user=user, role=role)
+
+        # Get the WebSocket channel layer to send the notification
+        channel_layer = get_channel_layer()
+
+        # Create the notification message
+        notification_message = f"New member added: {user.first_name} {user.last_name} has been added to project {project.name} as a {role}."
+
+        # Send the notification to the WebSocket group
+        channel_layer.group_send(
+            f'project_{project.key}',
+            {
+                'type': 'chat_message',
+                'message': notification_message
+            }
+        )
+
         return Response({"detail": "Membership created successfully."}, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['delete'], url_path='memberships/remove')
@@ -296,3 +313,5 @@ def all_project_view(request):
 
 def test(request):
    return render(request,"projects/test.html")
+
+

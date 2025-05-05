@@ -9,7 +9,21 @@
       <button class="create-btn" style="margin-left: 16px;" onclick="window.location.href='{% url 'create_project' %}'">
         Create Project
     </button>
-      <button class="icon-btn">🔔</button>
+    <button id="notificationBtn" class="notification-btn">
+      Notifications
+      <span class="notification-count" id="notificationCount">0</span>
+    </button>
+    
+    <div class="notification-popup" id="notificationPopup">
+      <div class="notification-header">
+        <span>Notifications</span>
+        <button class="close-btn" id="closeBtn">×</button>
+      </div>
+      <div id="notificationContent">
+        <div class="loading">Loading notifications...</div>
+      </div>
+    </div>
+  </div>
       <div class="avatar" id="avatar">PP</div>
         <!-- Popup Menu -->
         <div class="popup-menu" id="popup-menu">
