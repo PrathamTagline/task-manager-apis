@@ -4,66 +4,7 @@
   <meta charset="UTF-8">
   <title>Add People Modal</title>
   <style>
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      padding-top: 60px;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.4);
-    }
-
-    .modal-content {
-      background-color: #fff;
-      margin: auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 400px;
-      border-radius: 8px;
-    }
-
-    .close {
-      float: right;
-      font-size: 28px;
-      cursor: pointer;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    .form-control {
-      width: 100%;
-      padding: 10px;
-    }
-
-    .user-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px;
-      border-bottom: 1px solid #ccc;
-    }
-
-    .btn {
-      padding: 8px 12px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    .btn-light {
-      background: #f1f1f1;
-      border: 1px solid #ccc;
-    }
-
-    .btn-primary {
-      background-color: #007bff;
-      color: white;
-      border: none;
-    }
+    /* Add styling as needed */
   </style>
 </head>
 <body>
@@ -98,7 +39,7 @@
     refreshToken: localStorage.getItem("refresh_token")
   };
 
-  const projectKey = 'PA'; // your dynamic project key
+  const projectKey = 'NP'; // your dynamic project key
   const searchUserURL = (pattern) => `${CONFIG.BASE_API_URL}/accounts/api/user/search/?email_pattern=${pattern}`;
   const addMemberURL = `${CONFIG.BASE_API_URL}/projects/api/projects/${projectKey}/memberships/add/`;
 
@@ -112,6 +53,21 @@
     document.getElementById("searchPeople").value = '';
     document.getElementById("peopleList").innerHTML = '';
   }
+
+  // WebSocket Setup for Notifications
+  const userId = '{{ user.id }}';  // Inject user ID dynamically
+  const notificationSocket = new WebSocket(
+    'ws://' + window.location.host + '/ws/project/' + projectKey + '/'
+  );
+
+  notificationSocket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    alert('🔔 Notification: ' + data.message);
+  };
+
+  notificationSocket.onclose = function(e) {
+    console.error('Notification WebSocket closed unexpectedly.');
+  };
 
   // Live Search
   document.getElementById("searchPeople").addEventListener("input", async function () {
@@ -164,12 +120,11 @@
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${AUTH.accessToken}`
           },
-          body: JSON.stringify({ email,role })
+          body: JSON.stringify({ email, role })
         });
 
         if (!res.ok) {
           const error = await res.json();
-    
           return;
         }
 
@@ -178,11 +133,13 @@
         alert(`User ${email} added successfully.`);
 
       } catch (err) {
-
+        console.error("Error adding user:", err);
       }
     }
   });
 </script>
 
-</body>
+</body> 
 </html>
+good afternoon DarshanR sir,
+sir i stuck in the notification task in my task manage web application i try lot about to implement the real time notification by using web socket but its not work in  mine and i don't know i how i do that proerply so sir can you give the idia to me so i can implement that peroperly in my demo 

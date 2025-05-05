@@ -165,5 +165,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Initial calls to load projects into the sidebar and main container
 
     await updateProjects();
-    setInterval(updateProjects, 5000)
+    setInterval(updateProjects, 5000);
+
+    
+    
 });

@@ -1,0 +1,784 @@
+/* Additional CSS for new features */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+  
+  body {
+    background-color: #f4f5f7;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Breadcrumb navigation */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    padding: 16px 24px;
+    font-size: 14px;
+    color: #42526e;
+  }
+
+  .breadcrumb a {
+    color: #42526e;
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .breadcrumb .separator {
+    margin: 0 8px;
+    color: #6b778c;
+  }
+
+  /* Board header */
+  .board-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px 16px 24px;
+  }
+
+  .board-title {
+    font-size: 24px;
+    font-weight: 500;
+    color: #172b4d;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header-button {
+    width: 32px;
+    height: 32px;
+    border-radius: 3px;
+    border: none;
+    background: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #42526e;
+  }
+
+  .header-button:hover {
+    background-color: rgba(9, 30, 66, 0.08);
+  }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 24px;
+    border-bottom: 1px solid #dfe1e6;
+  }
+
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .search-input {
+    width: 200px;
+    padding: 6px 12px;
+    font-size: 14px;
+    border: 2px solid #dfe1e6;
+    border-radius: 3px;
+    transition: border-color 0.2s;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: #4c9aff;
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #dfe1e6;
+    color: #42526e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .avatar.blue {
+    background-color: #0052cc;
+    color: white;
+  }
+
+  .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .group-dropdown {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #42526e;
+  }
+
+  .group-label {
+    margin-right: 8px;
+  }
+
+  .dropdown-button {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    border: 1px solid #dfe1e6;
+    border-radius: 3px;
+    background-color: #f4f5f7;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .dropdown-button:hover {
+    background-color: #ebecf0;
+  }
+
+  .dropdown-arrow {
+    margin-left: 8px;
+  }
+
+  .toolbar-button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border: 1px solid #dfe1e6;
+    border-radius: 3px;
+    background-color: #f4f5f7;
+    font-size: 14px;
+    cursor: pointer;
+    color: #42526e;
+  }
+
+  .toolbar-button:hover {
+    background-color: #ebecf0;
+  }
+
+  /* Board content */
+  .board-content {
+    display: flex;
+    flex: 1;
+    padding: 24px;
+    gap: 16px;
+    overflow-x: auto;
+  }
+
+  .board-column {
+    flex: 0 0 280px;
+    max-width: 280px;
+    background-color: #f4f5f7;
+    border-radius: 3px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .column-header {
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #42526e;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #dfe1e6;
+  }
+
+  .column-count {
+    background-color: rgba(9, 30, 66, 0.08);
+    border-radius: 3px;
+    padding: 0 8px;
+    font-size: 12px;
+  }
+
+  .column-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b778c;
+  }
+
+  .tasks-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+  }
+
+  .task-card {
+    background-color: white;
+    border-radius: 3px;
+    box-shadow: 0 1px 2px rgba(9, 30, 66, 0.25);
+    margin-bottom: 8px;
+    padding: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .task-card:hover {
+    background-color: #fafbfc;
+  }
+
+  .task-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #172b4d;
+    margin-bottom: 8px;
+  }
+
+  .task-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .task-id {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #6b778c;
+  }
+
+  .task-checkbox {
+    width: 14px;
+    height: 14px;
+    border: 1px solid #dfe1e6;
+    border-radius: 2px;
+    display: inline-block;
+    position: relative;
+    margin-right: 4px;
+    background-color: #0052cc;
+  }
+
+  .task-checkbox::after {
+    content: "";
+    position: absolute;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    top: 1px;
+    left: 4px;
+    transform: rotate(45deg);
+  }
+
+  .add-issue {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    gap: 8px;
+    color: #6b778c;
+    cursor: pointer;
+    font-size: 14px;
+    transition: color 0.2s;
+  }
+
+  .add-issue:hover {
+    color: #172b4d;
+  }
+
+  .add-column {
+    flex: 0 0 280px;
+    max-width: 280px;
+    height: 40px;
+    border-radius: 3px;
+    background-color: rgba(9, 30, 66, 0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .add-column:hover {
+    background-color: rgba(9, 30, 66, 0.08);
+  }
+
+  .add-icon {
+    font-size: 20px;
+    color: #6b778c;
+  }
+
+  /* Modal Styles */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(9, 30, 66, 0.54);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    display: none;
+  }
+
+  .modal {
+    background-color: white;
+    border-radius: 3px;
+    box-shadow: 0 8px 16px rgba(9, 30, 66, 0.25);
+    width: 600px;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .modal-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid #dfe1e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal-title {
+    font-size: 20px;
+    font-weight: 500;
+    color: #172b4d;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: #6b778c;
+  }
+
+  .modal-content {
+    padding: 24px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #6b778c;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 2px solid #dfe1e6;
+    border-radius: 3px;
+    transition: border-color 0.2s;
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: #4c9aff;
+  }
+
+  textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #dfe1e6;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-primary {
+    background-color: #0052cc;
+    color: white;
+  }
+
+  .btn-secondary {
+    background-color: #f4f5f7;
+    border: 1px solid #dfe1e6;
+    color: #42526e;
+  }
+
+  .btn-primary:hover {
+    background-color: #0747a6;
+  }
+
+  .btn-secondary:hover {
+    background-color: #ebecf0;
+  }
+
+  /* User Profile Modal */
+  .user-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
+  }
+
+  .user-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #0052cc;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+
+  .user-name {
+    font-size: 20px;
+    font-weight: 500;
+    color: #172b4d;
+    margin-bottom: 8px;
+  }
+
+  .user-email {
+    font-size: 14px;
+    color: #6b778c;
+    margin-bottom: 16px;
+  }
+
+  .user-stats {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 20px;
+    font-weight: 500;
+    color: #172b4d;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: #6b778c;
+  }
+
+  /* Add People Modal */
+  .add-people-modal .modal-content {
+    padding: 0;
+  }
+
+  .search-bar {
+    padding: 16px;
+    border-bottom: 1px solid #dfe1e6;
+  }
+
+  .people-list {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .person-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #dfe1e6;
+    cursor: pointer;
+  }
+
+  .person-item:hover {
+    background-color: #f4f5f7;
+  }
+
+  .person-info {
+    flex: 1;
+    margin-left: 12px;
+  }
+
+  .person-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #172b4d;
+  }
+
+  .person-email {
+    font-size: 12px;
+    color: #6b778c;
+  }
+
+  /* Task Detail Styles */
+  .task-detail-header {
+    margin-bottom: 24px;
+  }
+
+  .task-detail-id {
+    font-size: 14px;
+    color: #6b778c;
+    margin-bottom: 8px;
+  }
+
+  .task-detail-title {
+    font-size: 24px;
+    font-weight: 500;
+    color: #172b4d;
+    margin-bottom: 16px;
+  }
+
+  .task-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .meta-label {
+    font-size: 12px;
+    color: #6b778c;
+    margin-bottom: 4px;
+  }
+
+  .meta-value {
+    font-size: 14px;
+    color: #172b4d;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .status-dropdown {
+    padding: 4px 8px;
+    border: 1px solid #dfe1e6;
+    border-radius: 3px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .status-dropdown:focus {
+    outline: none;
+    border-color: #4c9aff;
+  }
+
+  .task-description {
+    font-size: 14px;
+    color: #172b4d;
+    line-height: 1.5;
+    margin-bottom: 24px;
+  }
+
+  .task-comments {
+    margin-top: 24px;
+  }
+
+  .comment-form {
+    margin-bottom: 16px;
+  }
+
+  .comment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .comment {
+    display: flex;
+    gap: 12px;
+  }
+
+  .comment-content {
+    flex: 1;
+  }
+
+  .comment-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .comment-author {
+    font-size: 14px;
+    font-weight: 500;
+    color: #172b4d;
+  }
+
+  .comment-time {
+    font-size: 12px;
+    color: #6b778c;
+  }
+
+  .comment-text {
+    font-size: 14px;
+    color: #172b4d;
+    line-height: 1.5;
+  }
+
+  .todo-status {
+    background-color: #dfe1e6;
+    color: #42526e;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+  }
+
+  .in-progress-status {
+    background-color: #0052cc;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+  }
+
+  .done-status {
+    background-color: #36B37E;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+  }
+  /* Delete Project Button in Header */
+  .delete-project-btn {
+    margin-left: 8px;
+    padding: 6px 12px;
+    background-color: #FF5630;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .delete-project-btn:hover {
+    background-color: #DE350B;
+  }
+  
+  /* Delete Task Option in Task Details */
+  .task-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+    margin-bottom: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #dfe1e6;
+  }
+  
+  .delete-task-btn {
+    padding: 6px 12px;
+    background-color: #FF5630;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .delete-task-btn:hover {
+    background-color: #DE350B;
+  }
+  
+  /* Role Selection in Add People Modal */
+  .role-selection {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+  }
+  
+  .role-dropdown {
+    padding: 4px 8px;
+    border: 1px solid #dfe1e6;
+    border-radius: 3px;
+    font-size: 12px;
+    background-color: #f4f5f7;
+  }
+  
+  .role-label {
+    color: #6b778c;
+    font-size: 12px;
+    margin-left: 8px;
+  }
+  
+  /* Checkbox for people selection */
+  .person-checkbox {
+    margin-right: 12px;
+  }
+  
+  /* Delete confirmation modal */
+  .delete-confirm-modal .modal-content {
+    text-align: center;
+    padding: 24px;
+  }
+  
+  .delete-confirm-modal .warning-icon {
+    color: #FF5630;
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+  
+  .delete-confirm-modal p {
+    margin-bottom: 24px;
+    color: #172b4d;
+  }
+  
+  .delete-confirm-modal .btn-danger {
+    background-color: #FF5630;
+    color: white;
+  }
+  
+  .delete-confirm-modal .btn-danger:hover {
+    background-color: #DE350B;
+  }
+
+  .view-all-members-link {
+    color: #007bff; /* Set the text color */
+    text-decoration: none; /* Remove underline */
+    font-weight: bold; /* Make the text bold */
+    padding: 5px 10px; /* Add some padding */
+    border-radius: 4px; /* Add rounded corners */
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth hover effect */
+  }
+  
+  .view-all-members-link:hover {
+    background-color: #f0f0f0; /* Light gray background on hover */
+    color: #0056b3; /* Darker blue text on hover */
+    text-decoration: underline; /* Add underline on hover */
+  }

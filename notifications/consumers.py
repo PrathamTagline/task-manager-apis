@@ -1,4 +1,3 @@
-# notifications/consumers.py
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 
@@ -30,7 +29,7 @@ class ProjectConsumer(AsyncWebsocketConsumer):
                 }
             )
         except json.JSONDecodeError:
-            print("Received invalid JSON or empty message.")
+            print("Received invalid JSON or empty message.")    
             await self.send(text_data=json.dumps({
                 'error': 'Invalid message format. Expected JSON.'
             }))

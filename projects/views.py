@@ -13,6 +13,9 @@ from .models import Project, ProjectMembership
 from .serializers import ProjectSerializer, ProjectMembershipSerializer
 from accounts.models import User
 from django.http import HttpResponse
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
 
 class ProjectViewSet(viewsets.ModelViewSet):
     """
@@ -159,47 +162,41 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 
     @action(detail=True, methods=['post'], url_path='memberships/add')
-    def add_membership(self, request, key=None):
-        """
-        Add a user to a project by email.
-        Only Admins or Project Owners can perform this action.
-        """
-        project = self.get_object()
-        self._check_admin_or_owner(request.user, project)
-
-        email = request.data.get('email')
-        role = request.data.get('role', 'Member')
-
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+    def add_membership(self, request, pk=None):
+        project = get_object_or_404(Project, key=pk)
+        user_id = request.data.get('user_id')
+        user = get_object_or_404(User, id=user_id)
 
         if ProjectMembership.objects.filter(project=project, user=user).exists():
-            return Response({"detail": "User is already a member."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': 'User is already a member.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if role not in dict(ProjectMembership.ROLE_CHOICES):
-            return Response({"detail": "Invalid role."}, status=status.HTTP_400_BAD_REQUEST)
+        role = request.data.get('role', 'member')
 
-        # Create the new membership
-        membership = ProjectMembership.objects.create(project=project, user=user, role=role)
-
-        # Get the WebSocket channel layer to send the notification
-        channel_layer = get_channel_layer()
-
-        # Create the notification message
-        notification_message = f"New member added: {user.first_name} {user.last_name} has been added to project {project.name} as a {role}."
-
-        # Send the notification to the WebSocket group
-        channel_layer.group_send(
-            f'project_{project.key}',
-            {
-                'type': 'chat_message',
-                'message': notification_message
-            }
+        # Create membership
+        membership = ProjectMembership.objects.create(
+            project=project,
+            user=user,
+            role=role
         )
 
-        return Response({"detail": "Membership created successfully."}, status=status.HTTP_201_CREATED)
+        # Send WebSocket notification to project members
+        message = f'{user.email} has been added to the project as {role}'
+        channel_layer = get_channel_layer()
+        if channel_layer:
+            async_to_sync(channel_layer.group_send)(
+                f'project_{project.key}',  # Use the project key as the group name
+                {
+                    'type': 'chat_message',
+                    'message': message
+                }
+            )
+
+        return Response({
+            'detail': 'Membership added successfully.',
+            'membership_id': membership.id,
+            'user': user.email,
+            'role': role
+        }, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['delete'], url_path='memberships/remove')
     def remove_membership(self, request, key=None):
