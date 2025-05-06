@@ -43,11 +43,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(key__iexact=project_key)
 
         if name:
-            queryset = queryset.filter(name__iexact=name)
+            queryset = queryset.filter(name__icontains=name)
         if search:
-            queryset = queryset.filter(
-                Q(name__icontains=search) | Q(description__icontains=search)
-            )
+            queryset = queryset.filter(name__icontains=search)
+
         if project_type:
             queryset = queryset.filter(type__iexact=project_type)
 
@@ -219,6 +218,14 @@ class ProjectViewSet(viewsets.ModelViewSet):
         membership.save()
         return Response({"detail": "Membership updated successfully."}, status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=['get'], url_path='memberships/all')
+    def get_all_memberships(self, request, key=None):
+        project = self.get_object()
+        memberships = ProjectMembership.objects.filter(project=project)
+        serializer = ProjectMembershipSerializer(memberships, many=True)
+        return Response(serializer.data)
+
+
     @action(detail=True, methods=['get'], url_path='memberships')
     def get_memberships(self, request, key=None):
         """
@@ -252,7 +259,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
         # If neither 'role' nor 'email' is provided
         return Response({"detail": "Either 'role' or 'email' query parameter is required."}, status=status.HTTP_400_BAD_REQUEST)
-    
 
     def _check_admin_or_owner(self, user, project):
         """

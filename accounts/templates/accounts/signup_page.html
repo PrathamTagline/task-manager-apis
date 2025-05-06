@@ -9,13 +9,16 @@
 {% endblock styles %}
 
 {% block content %}
+    <!-- Navigation bar-->
     {% include "core/includes/home_page_components/home_page_navigation_bar_section.html" %}
-
     <div style="hight:40"></div>
+
+    <!-- signup contrainer -->
     <div class="signup-container">
-        {% include "accounts/includes/signup_page_components/signup_page_header.html" %}
+        {% include "accounts/includes/signup_page_components/signup_page_header.html" %} 
         {% include "accounts/includes/signup_page_components/signup_page_form.html" %}
     </div>
     
-    <script type="module" src="{% static 'js/signup_logic.js' %}"></script>
+    <!-- signup page logic -->
+    <script type="module" src="{% static 'js/signup_page_logic.js' %}"></script>
 {% endblock content%}

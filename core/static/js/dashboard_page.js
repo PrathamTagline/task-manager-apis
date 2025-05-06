@@ -1,6 +1,6 @@
 import { elements } from './dashboard_page_scripts/elements.js';
 import { toggleView, setActiveNavItem, toggleSubNav } from './dashboard_page_scripts/functions.js';
-import { fetchProjects, logoutUser } from './dashboard_page_scripts/apiService.js';
+import { fetchProjects } from './dashboard_page_scripts/apiService.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     // Ensure elements exist before attaching event listeners
@@ -99,10 +99,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         elements.logoutLink.addEventListener('click', () => {
             localStorage.removeItem('access_token');
             localStorage.removeItem('refresh_token');
-
-            logoutUser()
-                .then(() => window.location.href = '/accounts/signin/')
-                .catch(err => console.error('Logout error:', err));
         });
     }
 

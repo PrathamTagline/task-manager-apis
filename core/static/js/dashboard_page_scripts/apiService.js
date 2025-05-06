@@ -13,7 +13,7 @@ export async function fetchProjects() {
     }
 
     try {
-        const response = await fetch('http://127.0.0.1:8000/projects/api/projects/', {
+        const response = await fetch(`${API_ENDPOINTS.API_HEADER}/${API_ENDPOINTS.PROJECTS}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`, // Send the token in the Authorization header
@@ -28,17 +28,5 @@ export async function fetchProjects() {
         return await response.json();
     } catch (error) {
         console.error('Error fetching projects data:', error);
-    }
-}
-
-export async function logoutUser() {
-    try {
-        return await fetch(API_ENDPOINTS.LOGOUT, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-        });
-    } catch (error) {
-        console.error('API Error (logoutUser):', error);
-        throw error;
     }
 }

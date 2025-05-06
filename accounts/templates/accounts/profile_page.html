@@ -8,8 +8,15 @@
 {% endblock styles %}
 
 {% block content %}
+    <!-- Navigation-Bar -->
+    {% include "core/includes/dashboard_page_components/dashboard_page_top_navigation_bar.html" %}
+
+    <!-- profile contrainer -->
     <div class="profile-container">
         {% include "accounts/includes/profile_page_components/profile_page_header.html" %}
         {% include "accounts/includes/profile_page_components/profile_page_details.html" %}
     </div>
+
+    <!-- profile page logic -->
+     <script type="module" src="{% static "js/profile_page_logic.js" %}"></script>
 {% endblock content %}

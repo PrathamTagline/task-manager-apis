@@ -13,7 +13,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, Toke
 from django.contrib.auth.password_validation import validate_password
 
 
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+class SigninTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
@@ -23,93 +23,78 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['password'] = user.password
 
         return token
-    
+
+
 class SignupSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(
-        write_only=True,
-        required=True,
-        validators=[validate_password],
-        style={'input_type': 'password'}
-    )
-    password2 = serializers.CharField(
-        write_only=True,
-        required=True,
-        style={'input_type': 'password'}
-    )
-    email = serializers.EmailField(
-        required=True,
-        validators=[UniqueValidator(queryset=User.objects.all())]
-    )
-    profile_image = serializers.ImageField(required=False, allow_null=True)
+    password2 = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'password', 'password2', 'profile_image']
+        fields = ['username', 'first_name', 'last_name',
+                  'email', 'password', 'password2', 'profile_image']
+        extra_kwargs = {
+            'password': {'write_only': True, 'validators': [validate_password]},
+            'email': {'validators': [UniqueValidator(queryset=User.objects.all())]},
+            'profile_image': {'required': False, 'allow_null': True}
+        }
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError({"password": "Password fields didn't match."})
+            raise serializers.ValidationError(
+                {"password": "Password fields didn't match."})
         return attrs
 
     def create(self, validated_data):
-        validated_data.pop('password2')  # Remove password2 as it's not needed for user creation
+        validated_data.pop('password2')
         profile_image = validated_data.pop('profile_image', None)
-        user = User.objects.create_user(
-            username=validated_data['username'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
-            email=validated_data['email'],
-            password=validated_data['password']
-        )
+        user = User.objects.create_user(**validated_data)
         if profile_image:
-            user.profile_image = profile_image  # Corrected field name to match 'profile_image'
+            user.profile_image = profile_image
             user.save()
         return user
+
 
 class ForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
     def validate_email(self, value):
         try:
-            user = User.objects.get(email=value)
+            self.user = User.objects.get(email=value)
         except User.DoesNotExist:
-            raise serializers.ValidationError("User with this email does not exist.")
+            raise serializers.ValidationError(
+                "User with this email does not exist.")
         return value
 
     def save(self):
         email = self.validated_data['email']
-        user = User.objects.get(email=email)
+        user = self.user  # Use the stored user from validation
 
         # Generate password reset token
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
 
-        # Construct password reset link (example URL, adjust as needed)
-        reset_link = f"http://example.com/reset-password/{uid}/{token}/"
+        # Construct password reset link with proper format
+        reset_link = f"http://127.0.0.1:8000/api/reset-password/{uid}/{token}/"
 
-        # Send email
-        send_mail(
-            subject="Password Reset Request",
-            message=f"Click the link below to reset your password:\n{reset_link}",
-            from_email="prathamp.tagline@gmail.com",
-            recipient_list=[email],
-        )
+        try:
+            # Send email
+            send_mail(
+                subject="Password Reset Request",
+                message=f"Click the link below to reset your password:\n{reset_link}",
+                from_email="prathamp.tagline@gmail.com",
+                recipient_list=[email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            raise serializers.ValidationError(
+                f"Failed to send email: {str(e)}")
 
-class CustomTokenVerifySerializer(TokenVerifySerializer):
-    def validate(self, attrs):
-        # Call the parent class's validate method to perform the default validation
-        data = super().validate(attrs)
-
-        # Add any custom validation or additional data if needed
-        # For example, you can include a custom message or additional claims
-        data['message'] = "Token is valid."
-
-        return data
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile_image', 'phone', 'address', 'created_at', 'updated_at']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name',
+                  'profile_image', 'phone', 'address', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
     def update(self, instance, validated_data):
@@ -117,5 +102,25 @@ class UserSerializer(serializers.ModelSerializer):
         profile_image = validated_data.pop('profile_image', None)
         if profile_image:
             instance.profile_image = profile_image
-        
+
         return super().update(instance, validated_data)
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username','email','first_name','last_name','profile_image','phone','address']
+        read_only_fields = ['email']
+
+    def update(self, instance, validated_data):
+        # Handle profile image update
+        profile_image = validated_data.pop('profile_image', None)
+        if profile_image:
+            instance.profile_image = profile_image
+
+        # Update other fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance

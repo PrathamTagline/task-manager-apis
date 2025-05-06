@@ -1,4 +1,5 @@
 from rest_framework import serializers
+import uuid
 
 from projects.models import Project
 from .models import Task, TaskComment, SubTask, TaskIssue
@@ -68,14 +69,22 @@ class TaskWriteSerializer(serializers.ModelSerializer):
         request = self.context['request']
         assigned_to = validated_data.pop('assigned_to')
         project = validated_data.pop('project_key')  # Get the project
-        validated_data['assigned_to'] = assigned_to
-        validated_data['assigned_by'] = request.user
-        validated_data['created_by'] = request.user
-        validated_data['project'] = project  # Assign the project
-
-        task = Task.objects.create(**validated_data)
+        
+        # Generate a unique key for the task
+        task_key = f"TASK-{uuid.uuid4().hex[:8].upper()}"
+        
+        # Create the task with all necessary fields
+        task = Task.objects.create(
+            key=task_key,
+            assigned_to=assigned_to,
+            assigned_by=request.user,
+            created_by=request.user,
+            project=project,
+            **validated_data
+        )
 
         return task
+
     def update(self, instance, validated_data):
         assigned_to = validated_data.pop('assigned_to', None)
         if assigned_to:
@@ -84,17 +93,13 @@ class TaskWriteSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
-    
-
-
-
 
 
 class SubTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubTask
         fields = "__all__"
-        read_only_fields = ['id', 'key','created_at',"task"]
+        read_only_fields = ['id', 'key', 'created_at', "task"]
         extra_kwargs = {
             'title': {'required': True},
             'status': {'required': True},
@@ -110,8 +115,11 @@ class SubTaskSerializer(serializers.ModelSerializer):
         except Task.DoesNotExist:
             raise serializers.ValidationError("Invalid project or task key.")
 
+        # Generate a unique key for the subtask
+        subtask_key = f"SUB-{uuid.uuid4().hex[:8].upper()}"
+        
         validated_data['task'] = task
-       
+        validated_data['key'] = subtask_key
 
         return SubTask.objects.create(**validated_data)
 
@@ -120,8 +128,7 @@ class SubTaskSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
-    
 
-    def distroy(self, instance):
+    def destroy(self, instance):
         instance.delete()
         return instance

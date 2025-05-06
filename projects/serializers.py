@@ -87,9 +87,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         instance.save()
 
         if memberships_data:
-            # Optionally clear old memberships if you want
-            # ProjectMembership.objects.filter(project=instance).delete()
-
             for membership in memberships_data:
                 ProjectMembership.objects.update_or_create(
                     project=instance,

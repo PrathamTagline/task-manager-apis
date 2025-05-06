@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (registerRes.ok) {
                     // 2. Auto-login after successful signup
-                    const loginRes = await fetch('/accounts/api/token/', {
+                    const loginRes = await fetch('http://127.0.0.1:8000/accounts/api/signin/', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email, password }),
@@ -139,8 +139,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     message.innerText = errMsg;
                 }
             } catch (error) {
-                console.error('Error:', error);
-                message.innerText = 'An error occurred. Please try again.';
             }
         }
     });

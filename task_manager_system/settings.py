@@ -40,14 +40,15 @@ CHANNEL_LAYERS = {
         },
     },
 }
-# settings.py
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'  # or another SMTP server
-# EMAIL_PORT = 587  # Standard port for TLS
-# EMAIL_USE_TLS = True  # Enable TLS for secure communication
-# EMAIL_HOST_USER = 'your-email@example.com'  # Your email address
-# EMAIL_HOST_PASSWORD = 'your-email-password'  # Your email password
 
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')  # Your Gmail address
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')  # Your Gmail app password
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -149,7 +150,17 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'task_manager_system.wsgi.application'
+ASGI_APPLICATION = 'task_manager_system.asgi.application'
 
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases

@@ -9,12 +9,15 @@
 
 {% block content %}
 
+    <!-- navigation bar -->
     {% include "core/includes/home_page_components/home_page_navigation_bar_section.html" %}
-
+    
+    <!-- signin container -->
     <div class="signin-container">
         {% include "accounts/includes/signin_page_components/signin_page_header.html" %}
         {% include "accounts/includes/signin_page_components/signin_page_form.html" %}
     </div>
 
-    <script type="module" src="{% static 'js/sigin_logic.js' %}"></script>
+    <!-- signin logic -->
+    <script type="module" src="{% static 'js/sigin_page_logic.js' %}"></script>
 {% endblock content%}

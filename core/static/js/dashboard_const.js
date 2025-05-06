@@ -1,8 +1,8 @@
 // constants.js
 
 export const API_ENDPOINTS = {
+    API_HEADER: 'http://127.0.0.1:8000',
     PROJECTS: '/projects/api/projects/',
-    LOGOUT: '/accounts/signout/',
 };
 
 export const VIEW_IDS = {
