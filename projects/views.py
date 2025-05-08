@@ -12,7 +12,9 @@ from urllib.parse import unquote
 from .models import Project, ProjectMembership
 from .serializers import ProjectSerializer, ProjectMembershipSerializer
 from accounts.models import User
-from django.http import HttpResponse
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from notifications.models import Notification  # import your Notification model
 
 class ProjectViewSet(viewsets.ModelViewSet):
     """
@@ -181,7 +183,35 @@ class ProjectViewSet(viewsets.ModelViewSet):
             return Response({"detail": "Invalid role."}, status=status.HTTP_400_BAD_REQUEST)
 
         ProjectMembership.objects.create(project=project, user=user, role=role)
-        return Response({"detail": "Membership created successfully."}, status=status.HTTP_201_CREATED)
+
+        # ✅ Create notification in DB
+        notification = Notification.objects.create(
+            recipient=user,
+            sender=request.user,
+            notification_type="PROJECT_MEMBER_ADDED",
+            title=f"You were added to project '{project.name}'",
+            message=f"You were added as a {role} in project '{project.name}'",
+            is_online=True
+        )
+
+        # ✅ Send real-time WebSocket notification
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f"user_{user.id}",  # group name should match the consumer group
+            {
+                'type': 'send_notification',  # triggers send_notification in your consumer
+                'notification': {
+                    'id': str(notification.id),
+                    'title': notification.title,
+                    'message': notification.message,
+                    'notification_type': notification.notification_type,
+                    'is_online': notification.is_online,
+                    'created_at': notification.created_at.isoformat()
+                }
+            }
+        )
+
+        return Response({"detail": "Membership created and notification sent."}, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['delete'], url_path='memberships/remove')
     def remove_membership(self, request, key=None):

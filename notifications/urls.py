@@ -1,10 +1,11 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from . import views
+from .views import NotificationViewSet
 
+# Create DRF router
 router = DefaultRouter()
-router.register(r'notifications', views.NotificationViewSet, basename='notification')
+router.register(r'api/notifications', NotificationViewSet, basename='notification')
 
 urlpatterns = [
     path('', include(router.urls)),
-] 
+]

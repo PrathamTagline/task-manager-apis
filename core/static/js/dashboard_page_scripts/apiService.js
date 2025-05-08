@@ -13,7 +13,7 @@ export async function fetchProjects() {
     }
 
     try {
-        const response = await fetch(`${API_ENDPOINTS.API_HEADER}/${API_ENDPOINTS.PROJECTS}`, {
+        const response = await fetch(`${API_ENDPOINTS.API_HEADER}${API_ENDPOINTS.PROJECTS}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`, // Send the token in the Authorization header

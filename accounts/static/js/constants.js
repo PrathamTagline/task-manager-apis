@@ -1,4 +1,3 @@
-import { API_ENDPOINTS } from "../../../core/static/js/dashboard_const";
 
 export const ERROR_MESSAGES = {
     firstNameRequired: 'First name is required',
@@ -25,9 +24,6 @@ export const REGEX = {
     hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/,
 };
 
-export const API_ENDPOINTS = {
-    API_HEADER : ""
-}
 
 
 export const ERROR_CLASS = 'error';

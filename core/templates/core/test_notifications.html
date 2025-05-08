@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Notification System</title>
+  <style>
+    /* Basic styles */
+    .notification-btn {
+      position: relative;
+      background: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    .notification-count {
+      position: absolute;
+      top: -5px;
+      right: -10px;
+      background: red;
+      color: white;
+      padding: 2px 6px;
+      font-size: 12px;
+      border-radius: 50%;
+    }
+    .notification-popup {
+      position: absolute;
+      top: 60px;
+      right: 20px;
+      width: 300px;
+      background: white;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: none;
+      z-index: 1000;
+    }
+    .notification-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f5f5f5;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      font-weight: bold;
+    }
+    .notification-item {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    .notification-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .notification-message {
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .notification-meta {
+      font-size: 12px;
+      color: #888;
+    }
+    .close-btn {
+      background: transparent;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .loading {
+      padding: 10px;
+      text-align: center;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <button id="notificationBtn" class="notification-btn">
+    Notifications
+    <span class="notification-count" id="notificationCount">0</span>
+  </button>
+
+  <div class="notification-popup" id="notificationPopup">
+    <div class="notification-header">
+      <span>Notifications</span>
+      <button class="close-btn" id="closeBtn">×</button>
+    </div>
+    <div id="notificationContent">
+      <div class="loading">Loading notifications...</div>
+    </div>
+  </div>
+
+<script>
+  const apiUrl = 'http://127.0.0.1:8000/notifications/api/notifications/';
+  const userId = '{{ request.user.id }}';  // dynamically rendered by Django
+  const wsUrl = `ws://127.0.0.1:8000/ws/notifications/${userId}/`;
+  const wsUrl = `ws://127.0.0.1:8000/ws/notifications/${userId}/`;
+  const token = localStorage.getItem('access_token'); // assuming JWT stored in localStorage
+
+  const notificationBtn = document.getElementById('notificationBtn');
+  const notificationPopup = document.getElementById('notificationPopup');
+  const notificationCount = document.getElementById('notificationCount');
+  const notificationContent = document.getElementById('notificationContent');
+  const closeBtn = document.getElementById('closeBtn');
+
+  let unreadCount = 0;
+
+  // Helper: format "time ago"
+  function timeAgo(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    let interval = Math.floor(seconds / 31536000);
+    if (interval >= 1) return interval + " year" + (interval > 1 ? "s" : "") + " ago";
+    interval = Math.floor(seconds / 2592000);
+    if (interval >= 1) return interval + " month" + (interval > 1 ? "s" : "") + " ago";
+    interval = Math.floor(seconds / 86400);
+    if (interval >= 1) return interval + " day" + (interval > 1 ? "s" : "") + " ago";
+    interval = Math.floor(seconds / 3600);
+    if (interval >= 1) return interval + " hour" + (interval > 1 ? "s" : "") + " ago";
+    interval = Math.floor(seconds / 60);
+    if (interval >= 1) return interval + " minute" + (interval > 1 ? "s" : "") + " ago";
+    return "Just now";
+  }
+
+  // Create a notification DOM element
+  function createNotificationItem(notification) {
+    const div = document.createElement('div');
+    div.classList.add('notification-item');
+    if (!notification.is_read) {
+      div.style.backgroundColor = '#f9f9ff';
+      div.style.fontWeight = 'bold';
+    }
+    div.innerHTML = `
+      <div class="notification-title">${notification.title}</div>
+      <div class="notification-message">${notification.message}</div>
+      <div class="notification-meta">
+        <span>From: ${notification.sender}</span><br>
+        ${notification.project ? `<span>Project: ${notification.project}</span><br>` : ''}
+        ${notification.task ? `<span>Task: ${notification.task}</span><br>` : ''}
+        <span>${timeAgo(new Date(notification.created_at))}</span>
+      </div>
+    `;
+    return div;
+  }
+
+  // Load notifications from API
+  async function loadNotifications() {
+    notificationContent.innerHTML = '<div class="loading">Loading notifications...</div>';
+    try {
+      const response = await fetch(apiUrl, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      const data = await response.json();
+      notificationContent.innerHTML = '';
+      unreadCount = 0;
+      data.forEach(notification => {
+        const item = createNotificationItem(notification);
+        notificationContent.appendChild(item);
+        if (!notification.is_read) unreadCount++;
+      });
+      notificationCount.textContent = unreadCount;
+    } catch (err) {
+      console.error('Failed to load notifications:', err);
+      notificationContent.innerHTML = '<div class="loading">Failed to load notifications</div>';
+    }
+  }
+
+  // WebSocket setup
+  const socket = new WebSocket(wsUrl);
+  socket.onopen = () => console.log('WebSocket connected');
+  socket.onmessage = (event) => {
+    const notification = JSON.parse(event.data);
+    const item = createNotificationItem(notification);
+    notificationContent.prepend(item);
+    unreadCount++;
+    notificationCount.textContent = unreadCount;
+    // Optionally: show toast
+    alert(`🔔 ${notification.title}\n${notification.message}`);
+  };
+  socket.onclose = () => console.log('WebSocket disconnected');
+  socket.onerror = (err) => console.error('WebSocket error:', err);
+
+  // Toggle popup
+  notificationBtn.addEventListener('click', () => {
+    if (notificationPopup.style.display === 'block') {
+      notificationPopup.style.display = 'none';
+    } else {
+      notificationPopup.style.display = 'block';
+      loadNotifications();
+      unreadCount = 0;
+      notificationCount.textContent = unreadCount;
+    }
+  });
+
+  closeBtn.addEventListener('click', () => {
+    notificationPopup.style.display = 'none';
+  });
+
+  // Close popup when clicking outside
+  window.addEventListener('click', (e) => {
+    if (!notificationPopup.contains(e.target) && !notificationBtn.contains(e.target)) {
+      notificationPopup.style.display = 'none';
+    }
+  });
+</script>
+
+</body>
+</html>
