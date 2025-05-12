@@ -1,0 +1,1446 @@
+{
+	"info": {
+		"_postman_id": "53b1f3b0-016e-4084-b886-b045f40f9370",
+		"name": "real-time task manger web application",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42496614",
+		"_collection_link": "https://team-work-2638.postman.co/workspace/team-work-Workspace~ec9458f1-a503-42f6-825f-59a0f7323531/collection/42496614-53b1f3b0-016e-4084-b886-b045f40f9370?action=share&source=collection_link&creator=42496614"
+	},
+	"item": [
+		{
+			"name": "JWT authentication",
+			"item": [
+				{
+					"name": "User sign-in",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"roshnir.tagline@gmail.com\",\r\n  \"password\": \"roshnirajput123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/api/signin/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"accounts",
+								"api",
+								"signin",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user sign-up",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"testuser123456\",\r\n  \"first_name\": \"Test\",\r\n  \"last_name\": \"User\",\r\n  \"email\": \"testuser123456@example.com\",\r\n  \"password\": \"alph@1234\",\r\n  \"password2\": \"alph@1234\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/api/signup/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"accounts",
+								"api",
+								"signup",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "forgot password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"testuser@example.com\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/api/forgot-password/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"accounts",
+								"api",
+								"forgot-password",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "token verify",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2NjEwOTI3LCJpYXQiOjE3NDY1MjQ1MjcsImp0aSI6ImU2N2ZhMDAyYjkxZjQ0MGI5NWNkNWFjN2Q3YmJmMzk0IiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.weUEood48a4xQ9zF7NpUqzvaadZ_uMmJk7SIXHyeRpQ\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/api/token/verify/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"accounts",
+								"api",
+								"token",
+								"verify",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "signed user data",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2NjEwOTI3LCJpYXQiOjE3NDY1MjQ1MjcsImp0aSI6ImU2N2ZhMDAyYjkxZjQ0MGI5NWNkNWFjN2Q3YmJmMzk0IiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.weUEood48a4xQ9zF7NpUqzvaadZ_uMmJk7SIXHyeRpQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/api/user/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"accounts",
+								"api",
+								"user",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "search user by email",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2NjEwOTI3LCJpYXQiOjE3NDY1MjQ1MjcsImp0aSI6ImU2N2ZhMDAyYjkxZjQ0MGI5NWNkNWFjN2Q3YmJmMzk0IiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.weUEood48a4xQ9zF7NpUqzvaadZ_uMmJk7SIXHyeRpQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/api/user/search/?email=testuser@example.com",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"accounts",
+								"api",
+								"user",
+								"search",
+								""
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "testuser@example.com"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "search userby email startwith",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2NjEwOTI3LCJpYXQiOjE3NDY1MjQ1MjcsImp0aSI6ImU2N2ZhMDAyYjkxZjQ0MGI5NWNkNWFjN2Q3YmJmMzk0IiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.weUEood48a4xQ9zF7NpUqzvaadZ_uMmJk7SIXHyeRpQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/api/user/search/?email_pattern=test",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"accounts",
+								"api",
+								"user",
+								"search",
+								""
+							],
+							"query": [
+								{
+									"key": "email_pattern",
+									"value": "test"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "profile data retrieve",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2NjEwOTI3LCJpYXQiOjE3NDY1MjQ1MjcsImp0aSI6ImU2N2ZhMDAyYjkxZjQ0MGI5NWNkNWFjN2Q3YmJmMzk0IiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.weUEood48a4xQ9zF7NpUqzvaadZ_uMmJk7SIXHyeRpQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/api/profile/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"accounts",
+								"api",
+								"profile",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "projects APIs",
+			"item": [
+				{
+					"name": "projects CRUD and Filters",
+					"item": [
+						{
+							"name": "create-projects",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2NjEwOTI3LCJpYXQiOjE3NDY1MjQ1MjcsImp0aSI6ImU2N2ZhMDAyYjkxZjQ0MGI5NWNkNWFjN2Q3YmJmMzk0IiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.weUEood48a4xQ9zF7NpUqzvaadZ_uMmJk7SIXHyeRpQ",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"New Project 11121\",\n  \"description\": \"Project description\",\n  \"type\": \"API\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/projects/api/projects/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"projects",
+										"api",
+										"projects",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "retrieve-projects",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2NjEwOTI3LCJpYXQiOjE3NDY1MjQ1MjcsImp0aSI6ImU2N2ZhMDAyYjkxZjQ0MGI5NWNkNWFjN2Q3YmJmMzk0IiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.weUEood48a4xQ9zF7NpUqzvaadZ_uMmJk7SIXHyeRpQ",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/projects/api/projects/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"projects",
+										"api",
+										"projects",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update-porjects",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2NjEwOTI3LCJpYXQiOjE3NDY1MjQ1MjcsImp0aSI6ImU2N2ZhMDAyYjkxZjQ0MGI5NWNkNWFjN2Q3YmJmMzk0IiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.weUEood48a4xQ9zF7NpUqzvaadZ_uMmJk7SIXHyeRpQ",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Updated Project Name 0002\",\n  \"description\": \"Updated project description\",\n  \"type\": \"WEB\",\n  \"image\": null\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/projects/api/projects/RTTM/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"projects",
+										"api",
+										"projects",
+										"RTTM",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete-porjects",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2NjEwOTI3LCJpYXQiOjE3NDY1MjQ1MjcsImp0aSI6ImU2N2ZhMDAyYjkxZjQ0MGI5NWNkNWFjN2Q3YmJmMzk0IiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.weUEood48a4xQ9zF7NpUqzvaadZ_uMmJk7SIXHyeRpQ",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/projects/api/projects/NP/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"projects",
+										"api",
+										"projects",
+										"NP",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Search for Projects by Name",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2NjEwOTI3LCJpYXQiOjE3NDY1MjQ1MjcsImp0aSI6ImU2N2ZhMDAyYjkxZjQ0MGI5NWNkNWFjN2Q3YmJmMzk0IiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.weUEood48a4xQ9zF7NpUqzvaadZ_uMmJk7SIXHyeRpQ",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/projects/api/projects/?name=New Project 111",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"projects",
+										"api",
+										"projects",
+										""
+									],
+									"query": [
+										{
+											"key": "name",
+											"value": "New Project 111"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "filter by type",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2NjEwOTI3LCJpYXQiOjE3NDY1MjQ1MjcsImp0aSI6ImU2N2ZhMDAyYjkxZjQ0MGI5NWNkNWFjN2Q3YmJmMzk0IiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.weUEood48a4xQ9zF7NpUqzvaadZ_uMmJk7SIXHyeRpQ",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/projects/api/projects/?type=WEB",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"projects",
+										"api",
+										"projects",
+										""
+									],
+									"query": [
+										{
+											"key": "type",
+											"value": "WEB"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "filter by project key",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2NjEwOTI3LCJpYXQiOjE3NDY1MjQ1MjcsImp0aSI6ImU2N2ZhMDAyYjkxZjQ0MGI5NWNkNWFjN2Q3YmJmMzk0IiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.weUEood48a4xQ9zF7NpUqzvaadZ_uMmJk7SIXHyeRpQ",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/projects/api/projects/?key=PA",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"projects",
+										"api",
+										"projects",
+										""
+									],
+									"query": [
+										{
+											"key": "key",
+											"value": "PA"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "search Projects by Term (Name or Description)",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2NjEwOTI3LCJpYXQiOjE3NDY1MjQ1MjcsImp0aSI6ImU2N2ZhMDAyYjkxZjQ0MGI5NWNkNWFjN2Q3YmJmMzk0IiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.weUEood48a4xQ9zF7NpUqzvaadZ_uMmJk7SIXHyeRpQ",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/projects/api/projects/?name=Project ABC&description=This is a description of Project ABC.",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"projects",
+										"api",
+										"projects",
+										""
+									],
+									"query": [
+										{
+											"key": "name",
+											"value": "Project ABC"
+										},
+										{
+											"key": "description",
+											"value": "This is a description of Project ABC."
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "filter with search and type",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2NjEwOTI3LCJpYXQiOjE3NDY1MjQ1MjcsImp0aSI6ImU2N2ZhMDAyYjkxZjQ0MGI5NWNkNWFjN2Q3YmJmMzk0IiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.weUEood48a4xQ9zF7NpUqzvaadZ_uMmJk7SIXHyeRpQ",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/projects/api/projects/?search=New Project",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"projects",
+										"api",
+										"projects",
+										""
+									],
+									"query": [
+										{
+											"key": "search",
+											"value": "New Project"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "member CRUD and Filters",
+					"item": [
+						{
+							"name": "get all membership of specific person",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2NjEwOTI3LCJpYXQiOjE3NDY1MjQ1MjcsImp0aSI6ImU2N2ZhMDAyYjkxZjQ0MGI5NWNkNWFjN2Q3YmJmMzk0IiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.weUEood48a4xQ9zF7NpUqzvaadZ_uMmJk7SIXHyeRpQ",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"patelpratham00099@example.com\",\r\n  \"role\": \"DEVELOPER\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/projects/api/projects/PA/memberships/add/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"projects",
+										"api",
+										"projects",
+										"PA",
+										"memberships",
+										"add",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get all membership person of project",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2NjEwOTI3LCJpYXQiOjE3NDY1MjQ1MjcsImp0aSI6ImU2N2ZhMDAyYjkxZjQ0MGI5NWNkNWFjN2Q3YmJmMzk0IiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.weUEood48a4xQ9zF7NpUqzvaadZ_uMmJk7SIXHyeRpQ",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/projects/api/projects/PA/memberships/all",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"projects",
+										"api",
+										"projects",
+										"PA",
+										"memberships",
+										"all"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "retrieve specify member from the project",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ1OTg4ODYwLCJpYXQiOjE3NDU5MDI0NjAsImp0aSI6IjM0OTcxMjVjYzIyYjQyYzA5YmRiMGYyZDA3NmZkODQyIiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.Yz4zjbn6hoHAN4L675wnbYx61VTzh2KfeKbEGIz5ZkQ",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"testuser@example.com\",\r\n  \"role\": \"DESIGNER\"\r\n}\r\n\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/projects/api/projects/PA/memberships/update/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"projects",
+										"api",
+										"projects",
+										"PA",
+										"memberships",
+										"update",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "remove member",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2NTEzMTgwLCJpYXQiOjE3NDY0MjY3ODAsImp0aSI6Ijc0ODU1NzkxMjBkYjQyNGE5NjU0MTU1OTQ0NDY0YTgzIiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.TCIPFMS_fiK-LbUGvnW835-DtfDa7VlJJqU5BfSj1es",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\" : \"patelpratham0022@example.com\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/projects/api/projects/TMF/memberships/remove/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"projects",
+										"api",
+										"projects",
+										"TMF",
+										"memberships",
+										"remove",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "retrieve member by email",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2NjEwOTI3LCJpYXQiOjE3NDY1MjQ1MjcsImp0aSI6ImU2N2ZhMDAyYjkxZjQ0MGI5NWNkNWFjN2Q3YmJmMzk0IiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.weUEood48a4xQ9zF7NpUqzvaadZ_uMmJk7SIXHyeRpQ",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/projects/api/projects/PA/memberships/?email=roshnir.tagline@gmail.com",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"projects",
+										"api",
+										"projects",
+										"PA",
+										"memberships",
+										""
+									],
+									"query": [
+										{
+											"key": "email",
+											"value": "roshnir.tagline@gmail.com"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "retrieve members data by role",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ1OTg4ODYwLCJpYXQiOjE3NDU5MDI0NjAsImp0aSI6IjM0OTcxMjVjYzIyYjQyYzA5YmRiMGYyZDA3NmZkODQyIiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.Yz4zjbn6hoHAN4L675wnbYx61VTzh2KfeKbEGIz5ZkQ",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/projects/api/projects/PA/memberships/?role=DESIGNER",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"projects",
+										"api",
+										"projects",
+										"PA",
+										"memberships",
+										""
+									],
+									"query": [
+										{
+											"key": "role",
+											"value": "DESIGNER"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "task APIs",
+			"item": [
+				{
+					"name": "tasks CRUD and Filter APIs",
+					"item": [
+						{
+							"name": "create task for particular project",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MDcxMDU3LCJpYXQiOjE3NDU5ODQ2NTcsImp0aSI6IjM5YWI3OTIyNzVlNTRiMmI4ZjM2ZjAxYWIwYjdhOTFhIiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.MsCSTMCmo7-f4M6ypfjwgzIFrfwHxXFLXsKQfl1eS8k",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Fix task post api Bug fdsfsfsfsfsadfasfasdfsa\",\n    \"description\": \"Users cannot log in.\",\n    \"priority\": \"HIGH\",\n    \"status\": \"TODO\",\n    \"due_date\": \"2025-05-01T12:00:00\",\n    \"start_time\": \"2025-04-30T10:00:00\",\n    \"end_time\": \"2025-05-01T12:00:00\",\n    \"estimated_duration\": \"03:00:00\",\n    \"actual_duration\": \"02:30:00\",\n    \"assigned_to\": \"testuser@example.com\"\n    \n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/tasks/api/projects/PA/tasks/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"tasks",
+										"api",
+										"projects",
+										"PA",
+										"tasks",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "task according to project key",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MDcxMDU3LCJpYXQiOjE3NDU5ODQ2NTcsImp0aSI6IjM5YWI3OTIyNzVlNTRiMmI4ZjM2ZjAxYWIwYjdhOTFhIiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.MsCSTMCmo7-f4M6ypfjwgzIFrfwHxXFLXsKQfl1eS8k",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/tasks/api/projects/PA/tasks/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"tasks",
+										"api",
+										"projects",
+										"PA",
+										"tasks",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "updates task according to project key",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MDcxMDU3LCJpYXQiOjE3NDU5ODQ2NTcsImp0aSI6IjM5YWI3OTIyNzVlNTRiMmI4ZjM2ZjAxYWIwYjdhOTFhIiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.MsCSTMCmo7-f4M6ypfjwgzIFrfwHxXFLXsKQfl1eS8k",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Fix task post api gfdsgfdsfgds  Bug\",\n    \"description\": \"Users cannot log in.\",\n    \"priority\": \"HIGH\",\n    \"status\": \"TODO\",\n    \"due_date\": \"2025-05-01T12:00:00\",\n    \"start_time\": \"2025-04-30T10:00:00\",\n    \"end_time\": \"2025-05-01T12:00:00\",\n    \"estimated_duration\": \"03:00:00\",\n    \"actual_duration\": \"02:30:00\",\n    \"assigned_to\": \"testuser12345@example.com\"\n    \n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/tasks/api/projects/PA/tasks/PA-T7/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"tasks",
+										"api",
+										"projects",
+										"PA",
+										"tasks",
+										"PA-T7",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "updates task according to project key Copy",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MDcxMDU3LCJpYXQiOjE3NDU5ODQ2NTcsImp0aSI6IjM5YWI3OTIyNzVlNTRiMmI4ZjM2ZjAxYWIwYjdhOTFhIiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.MsCSTMCmo7-f4M6ypfjwgzIFrfwHxXFLXsKQfl1eS8k",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/tasks/api/projects/PA/tasks/PA-T3/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"tasks",
+										"api",
+										"projects",
+										"PA",
+										"tasks",
+										"PA-T3",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "specific task according to project key",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MDEzNzMzLCJpYXQiOjE3NDU5MjczMzMsImp0aSI6IjhmOWRjNjBiNmQ2YzQ3NjliZTRiYjk5NDAyYzc2Y2M2IiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.HAJXd177C7EqWYkNIijJ1-qKqhDZZppDW9Kgy5K27RA",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/tasks/api/projects/PA/tasks/PA-T1",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"tasks",
+										"api",
+										"projects",
+										"PA",
+										"tasks",
+										"PA-T1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get task by title",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MDcxMDU3LCJpYXQiOjE3NDU5ODQ2NTcsImp0aSI6IjM5YWI3OTIyNzVlNTRiMmI4ZjM2ZjAxYWIwYjdhOTFhIiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.MsCSTMCmo7-f4M6ypfjwgzIFrfwHxXFLXsKQfl1eS8k",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/tasks/api/projects/PA/tasks/?title=Fix Login Bug",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"tasks",
+										"api",
+										"projects",
+										"PA",
+										"tasks",
+										""
+									],
+									"query": [
+										{
+											"key": "title",
+											"value": "Fix Login Bug"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "New Request",
+							"request": {
+								"method": "GET",
+								"header": []
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "subtask CRUD and Filter APIs",
+					"item": [
+						{
+							"name": "create subtask for particular task and project",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MDcxMDU3LCJpYXQiOjE3NDU5ODQ2NTcsImp0aSI6IjM5YWI3OTIyNzVlNTRiMmI4ZjM2ZjAxYWIwYjdhOTFhIiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.MsCSTMCmo7-f4M6ypfjwgzIFrfwHxXFLXsKQfl1eS8k",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"sadadasfasdfsafas\",\n    \"status\": \"TODO\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/tasks/api/projects/PA/tasks/PA-T1/subtasks/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"tasks",
+										"api",
+										"projects",
+										"PA",
+										"tasks",
+										"PA-T1",
+										"subtasks",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "retrieve subtask for particular task and project",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MDcxMDU3LCJpYXQiOjE3NDU5ODQ2NTcsImp0aSI6IjM5YWI3OTIyNzVlNTRiMmI4ZjM2ZjAxYWIwYjdhOTFhIiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.MsCSTMCmo7-f4M6ypfjwgzIFrfwHxXFLXsKQfl1eS8k",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/tasks/api/projects/PA/tasks/PA-T1/subtasks/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"tasks",
+										"api",
+										"projects",
+										"PA",
+										"tasks",
+										"PA-T1",
+										"subtasks",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update subtask of particular task and project",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MDcxMDU3LCJpYXQiOjE3NDU5ODQ2NTcsImp0aSI6IjM5YWI3OTIyNzVlNTRiMmI4ZjM2ZjAxYWIwYjdhOTFhIiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.MsCSTMCmo7-f4M6ypfjwgzIFrfwHxXFLXsKQfl1eS8k",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"fdgdsgdgfd\",\n    \"status\": \"TODO\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/tasks/api/projects/PA/tasks/PA-T1/subtasks/PA-ST5/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"tasks",
+										"api",
+										"projects",
+										"PA",
+										"tasks",
+										"PA-T1",
+										"subtasks",
+										"PA-ST5",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "New Request",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MDcxMDU3LCJpYXQiOjE3NDU5ODQ2NTcsImp0aSI6IjM5YWI3OTIyNzVlNTRiMmI4ZjM2ZjAxYWIwYjdhOTFhIiwidXNlcl9pZCI6ImIwMWFkZjNhLTcyYTEtNDY1Mi04NTMyLTVlZmM4ODg0NjBkMyIsImVtYWlsIjoicm9zaG5pci50YWdsaW5lQGdtYWlsLmNvbSIsInBhc3N3b3JkIjoicGJrZGYyX3NoYTI1NiQxMDAwMDAwJEJYZWM3YXBrY3VWalIzVFpaU0pJTnAkdVZZWTJ6c1lSMXlsSjRZOU1YdUFNa1hoUzJId1NUck4zWjM5Y1FqZld5MD0ifQ.MsCSTMCmo7-f4M6ypfjwgzIFrfwHxXFLXsKQfl1eS8k",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/tasks/api/projects/PA/tasks/PA-T1/subtasks/PA-ST5/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"tasks",
+										"api",
+										"projects",
+										"PA",
+										"tasks",
+										"PA-T1",
+										"subtasks",
+										"PA-ST5",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "notification",
+			"item": [
+				{
+					"name": "show user's notifications",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
