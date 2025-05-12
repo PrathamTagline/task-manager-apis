@@ -6,7 +6,9 @@ from rest_framework.permissions import IsAuthenticated
 from projects.models import Project
 from .models import SubTask, Task
 from .serializers import SubTaskSerializer, TaskSerializer, TaskWriteSerializer
-
+from django.shortcuts import render, redirect
+from .models import Task
+from .tasks import send_task_notification
 
 class TaskViewSet(viewsets.ModelViewSet):
     """
@@ -142,4 +144,20 @@ class SubTaskViewSet(viewsets.ModelViewSet):
         context['task_key'] = self.kwargs.get('task_key')
         return context
 
-    
+
+
+
+
+def create_task(request):
+    if request.method == 'POST':
+        title = request.POST['title']
+        deadline = request.POST['deadline']
+        assigned_to = request.user  # or pick another user
+        task = Task.objects.create(
+            title=title,
+            deadline=deadline,
+            assigned_to=assigned_to,
+        )
+        send_task_notification.delay(task.id)  # run async
+        return redirect('task_list')
+    return render(request, 'create_task.html')
